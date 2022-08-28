@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  db:
+    image: "postgres:latest"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=bakery_tester
+      - POSTGRES_USER=bakery_tester
+      - POSTGRES_PASSWORD=bakery_tester
+    ports:
+      - "5432:5432"
+
