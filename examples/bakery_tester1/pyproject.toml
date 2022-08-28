@@ -1,0 +1,58 @@
+[tool.black]
+line-length = 99
+target-version = ["py39"]
+include = '\.pyi?$'
+skip-string-normalization = true
+exclude = '''
+(
+  /(
+    | \.git
+    | \.mypy_cache
+  )/
+)
+'''
+
+[tool.isort]
+line_length = 120
+sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
+no_lines_before = ['STDLIB', 'LOCALFOLDER']
+known_third_party = [
+    'pytest',
+]
+known_local_folder = []
+multi_line_output = 3
+lines_after_imports = 2
+
+[tool.poetry]
+name = "test_app_1"
+version = "0.0.1"
+description = "Real bakery tests"
+authors = ["Dmitry Makarov"]
+classifiers = ["Programming Language :: Python :: 3.9"]
+
+
+[tool.pytest.ini_options]
+trio_mode = "true"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "*"
+uvicorn = "*"
+loguru = "*"
+aiocron = "*"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+isort = "*"
+mypy = "*"
+pylint = "*"
+autoflake = "*"
+httpx = "*"
+trio = "*"
+pytest = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+pytest-trio = "^0.7.0"
+
+[tool.mypy]
+plugins = "bakery.mypy"
