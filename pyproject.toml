@@ -59,6 +59,7 @@ packages = [
 [tool.poetry.plugins."pytest11"]
 "bakery_mock" = "bakery.testbakery"
 
+
 [tool.pytest.ini_options]
 trio_mode = "true"
 
@@ -83,6 +84,11 @@ trio = "*"
 types-dataclasses = "*"
 sort-all = "*"
 tox = "*"
+# documentation
+mkdocs = "*"
+mkautodoc = "*"
+pymdown-extensions = "*"
+mkdocs-material = "*"
 
 [tool.pylint]
 # https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html
