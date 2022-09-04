@@ -85,10 +85,11 @@ types-dataclasses = "*"
 sort-all = "*"
 tox = "*"
 # documentation
-mkdocs = "*"
-mkautodoc = "*"
-pymdown-extensions = "*"
-mkdocs-material = "*"
+mkdocs = "^1.3.1"
+mkautodoc = "^0.2.0"
+pymdown-extensions = "^9.1"
+mkdocs-material = "^8.2.11"
+jinja2 = "^3.0.3"
 
 [tool.pylint]
 # https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html
