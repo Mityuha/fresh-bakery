@@ -9,9 +9,14 @@ repo_url: https://github.com/mityuha/fresh-bakery
 
 nav:
     - Introduction: 'index.md'
+    - Baking Methods: 'baking_methods.md'
 
 markdown_extensions:
   - mkautodoc
   - admonition
   - pymdownx.highlight
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
