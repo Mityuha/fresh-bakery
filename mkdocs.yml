@@ -1,0 +1,17 @@
+site_name: Fresh Bakery
+site_description: Lightweight dependency injection framework
+
+theme:
+    name: 'material'
+
+repo_name: mityuha/fresh-bakery
+repo_url: https://github.com/mityuha/fresh-bakery
+
+nav:
+    - Introduction: 'index.md'
+
+markdown_extensions:
+  - mkautodoc
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
