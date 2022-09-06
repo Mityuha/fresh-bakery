@@ -9,6 +9,7 @@ repo_url: https://github.com/mityuha/fresh-bakery
 
 nav:
     - Introduction: 'index.md'
+    - Bakery and Cakes: 'bakery_and_cakes.md'
     - Baking Methods: 'baking_methods.md'
 
 markdown_extensions:
