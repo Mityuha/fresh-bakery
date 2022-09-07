@@ -234,6 +234,34 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
         assert Comp2().comp.total == 600
 
 
+async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
+    """Test simple nested cakes mock."""
+
+    class MyBakery(Bakery):
+        """MyBakery."""
+
+        value: float = Cake(
+            sum,
+            Cake(
+                Cake(
+                    list,
+                    [Cake(sum, [1, 2, 3])],  # type: ignore
+                ),
+            ),
+        )
+
+    async with MyBakery() as bakery:
+        assert bakery.value == 6
+
+    bakery_mock.value = Cake(10)
+    async with bakery_mock(MyBakery):
+        assert MyBakery().value == 10
+
+    bakery_mock.value = lambda *args: sum(*args, 4)  # type: ignore
+    async with bakery_mock(MyBakery):
+        assert MyBakery().value == 10
+
+
 async def test_nested_cakes_mock(bakery_mock: BakeryMock) -> None:
     """Test nested cakes mock."""
 
