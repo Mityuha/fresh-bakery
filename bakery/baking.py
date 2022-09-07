@@ -215,17 +215,21 @@ class Ingredients:
         """Unbake cake."""
 
         # Unbake anonymous recipes even if not self.is_baked
-        for recipe in flatten([self.recipe_args, self.recipe_kwargs, self.recipe]):
-            if is_cake(recipe) and not cake_name(recipe):
+        # Cache recipe called value (recipe())
+        # because it will be impossible to do it
+        # after recipe unbaked
+        recipe: Any = self.recipe
+        if is_cake(recipe):
+            recipe = recipe()
+
+        _recipe: Any
+        for _recipe in flatten([self.recipe, self.recipe_args, self.recipe_kwargs]):
+            if is_cake(_recipe) and not cake_name(_recipe):
                 # unbake anonymous recipes only
-                await unbake(recipe, exc_type, exc_value, traceback)
+                await unbake(_recipe, exc_type, exc_value, traceback)
 
         if not self.is_baked:
             return
-
-        recipe = self.recipe
-        if is_cake(recipe):
-            recipe = self.recipe()
 
         if self.cake_baking_method == BakingMethod.BAKE_FROM_CM:
             recipe.__exit__(exc_type, exc_value, traceback)

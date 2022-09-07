@@ -11,6 +11,7 @@ __all__ = [
     "cake_baking_method",
     "cake_ingredients",
     "cake_name",
+    "flatten",
     "is_baked",
     "is_cake",
     "is_iterable",
