@@ -128,11 +128,11 @@ class BakeryMock:
 
     async def reset(self) -> None:
         """Stop patching."""
-        self._mocker_.stopall()
-
         if self._bakery_:
             await self._bakery_.aclose()
             self._bakery_ = None
+
+        self._mocker_.stopall()
 
     def __setattr__(self, attr: str, value: Any) -> None:
         if attr in (

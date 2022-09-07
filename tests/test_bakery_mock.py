@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from time import sleep
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from bakery import Bakery, Cake, is_baked
 from bakery.testbakery import BakeryMock
@@ -232,3 +232,66 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
         assert Comp2().comp.sleeper2 == 200
         assert Comp2().comp.some_list[2] == 300
         assert Comp2().comp.total == 600
+
+
+async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
+    """Test simple nested cakes mock."""
+
+    def make_list(*args: Any) -> List:
+        """Make list."""
+        return list(*args)
+
+    class MyBakery(Bakery):
+        """MyBakery."""
+
+        value: float = Cake(
+            sum,
+            Cake(
+                Cake(
+                    make_list,
+                    [Cake(sum, [1, 2, 3])],  # type: ignore
+                ),
+            ),
+        )
+
+    async with MyBakery() as bakery:
+        assert bakery.value == 6
+
+    bakery_mock.value = Cake(10)
+    async with bakery_mock(MyBakery):
+        assert MyBakery().value == 10
+
+    bakery_mock.value = lambda *args: sum(*args, 4)  # type: ignore
+    async with bakery_mock(MyBakery):
+        assert MyBakery().value == 10
+
+
+async def test_nested_cakes_mock(bakery_mock: BakeryMock) -> None:
+    """Test nested cakes mock."""
+
+    class Database:
+        """Database."""
+
+        def __init__(self, table: str):
+            self.connected: bool = False
+            self.table: str = table
+
+        async def __aenter__(self) -> "Database":
+            self.connected = True
+            return self
+
+        async def __aexit__(self, *_args: Any) -> None:
+            self.connected = False
+
+    class MyBakery(Bakery):
+        """MyBakery."""
+
+        database: Database = Cake(Cake(Database, table=Cake("table")))
+
+    async with MyBakery() as bakery:
+        assert bakery.database.connected
+
+    bakery_mock.database = Cake(None)
+
+    async with bakery_mock(MyBakery):
+        assert MyBakery().database is None
