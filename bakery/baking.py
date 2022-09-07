@@ -214,6 +214,12 @@ class Ingredients:
     ) -> None:
         """Unbake cake."""
 
+        # Unbake anonymous recipes even if not self.is_baked
+        for recipe in flatten([self.recipe_args, self.recipe_kwargs, self.recipe]):
+            if is_cake(recipe) and not cake_name(recipe):
+                # unbake anonymous recipes only
+                await unbake(recipe, exc_type, exc_value, traceback)
+
         if not self.is_baked:
             return
 
@@ -226,11 +232,6 @@ class Ingredients:
 
         elif self.cake_baking_method == BakingMethod.BAKE_FROM_ACM:
             await recipe.__aexit__(exc_type, exc_value, traceback)
-
-        for recipe in flatten([self.recipe_args, self.recipe_kwargs, self.recipe]):
-            if is_cake(recipe) and not cake_name(recipe):
-                # unbake anonymous recipes only
-                await unbake(recipe, exc_type, exc_value, traceback)
 
         logger.debug(f"{self} is unbaked")
 
