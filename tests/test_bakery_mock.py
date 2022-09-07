@@ -237,6 +237,10 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
 async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
     """Test simple nested cakes mock."""
 
+    def make_list(*args: Any) -> List:
+        """Make list."""
+        return list(*args)
+
     class MyBakery(Bakery):
         """MyBakery."""
 
@@ -244,7 +248,7 @@ async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
             sum,
             Cake(
                 Cake(
-                    list,
+                    make_list,
                     [Cake(sum, [1, 2, 3])],  # type: ignore
                 ),
             ),
