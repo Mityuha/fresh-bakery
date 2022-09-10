@@ -11,6 +11,7 @@ nav:
     - Introduction: 'index.md'
     - Bakery and Cakes: 'bakery_and_cakes.md'
     - Baking Methods: 'baking_methods.md'
+    - Bakery and Cakes (Advanced): 'bakery_and_cakes_advanced.md'
 
 markdown_extensions:
   - mkautodoc
