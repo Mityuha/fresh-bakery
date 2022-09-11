@@ -7,6 +7,14 @@ It is recommended to use pytest framework to test your bakeries. Fresh Bakery ap
     $ pip install pytest-mock
     ```
 
+!!! info
+    `bakery_mock` is a function-scoped fixture. There are also other fixtures with different fixture scopes:   
+
+    - `class_bakery_mock` is a class-scoped fixture
+    - `module_bakery_mock` is a module-scoped fixture
+    - `package_bakery_mock` is a package-scoped fixture
+    - `session_bakery_mock` is a session-scoped fixture
+
 ## Patch before bakery opened
 Let's see hot to use `bakery_mock` fixture to test your bakery.
 ```python
