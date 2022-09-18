@@ -3,7 +3,7 @@
   <a href="https://fresh-bakery.readthedocs.io/en/latest/"><img width="300px" src="https://user-images.githubusercontent.com/17745407/187294435-a3bc6b26-b7df-43e5-abd3-0d7a7f92b71e.png" alt='fresh-bakery'></a>
 </p>
 <p align="center">
-    <em>🍰 The little DI framework that taste like a cake. 🍰</em>
+    <em>🍰 The little DI framework that tastes like a cake. 🍰</em>
 </p>
 
 ---
