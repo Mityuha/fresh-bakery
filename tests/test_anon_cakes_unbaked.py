@@ -83,3 +83,21 @@ async def test_nested_anon_cakes_unbaked() -> None:
     assert len(all_anon_cakes) == 28
 
     assert all(not is_baked(cake) for cake in all_anon_cakes)
+
+
+async def test_unbake_not_baked_recipies() -> None:
+    """Test unbake not baked recipies."""
+
+    def error_func(num: int) -> float:
+        """Just raises ZeroDivisionError."""
+        return num / 0
+
+    class MyBakery(Bakery):
+        """Bakery."""
+
+        inf: float = Cake(error_func, 5)
+        anon_cake: int = Cake(Cake(1))
+
+    with pytest.raises(ZeroDivisionError):
+        async with MyBakery():
+            pass

@@ -21,6 +21,7 @@ from .stuff import (
     Cakeable,
     cake_name,
     flatten,
+    is_baked,
     is_cake,
     replace_cakes,
 )
@@ -219,7 +220,7 @@ class Ingredients:
         # because it will be impossible to do it
         # after recipe unbaked
         recipe: Any = self.recipe
-        if is_cake(recipe):
+        if is_cake(recipe) and is_baked(recipe):
             recipe = recipe()
 
         _recipe: Any

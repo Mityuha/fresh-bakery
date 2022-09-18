@@ -32,7 +32,7 @@ from .stuff import (
 
 
 class Pastry(CakeRecipe):
-    """Pastry for your cake.
+    """Pastry is a public cake interface with almost zero name collision.
 
     Your item ingredients and cooking method stored here.
     """
