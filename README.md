@@ -146,6 +146,9 @@ For a more complete example, see [bakery examples](https://github.com/Mityuha/fr
 
 No dependencies ;)
 
+## Changelog
+You can see the release history here: https://github.com/Mityuha/fresh-bakery/releases/
+
 ---
 
 <p align="center"><i>Fresh Bakery is <a href="https://github.com/Mityuha/fresh-bakery/blob/main/LICENSE">MIT licensed</a> code.</p>
