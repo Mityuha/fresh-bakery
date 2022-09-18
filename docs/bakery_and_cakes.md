@@ -16,8 +16,10 @@ Though such a class is not singleton, but its instances share the same state. It
 ```python
 from bakery import Bakery, Cake
 
+
 class MyBakery(Bakery):
-    my_list: list[int] = Cake([1,2,3])
+    my_list: list[int] = Cake([1, 2, 3])
+
 
 async with MyBakery():
     bakery1: MyBakery = MyBakery()
@@ -40,12 +42,15 @@ from copy import copy
 from dataclasses import dataclass
 from bakery import Bakery, Cake, Pastry, bake, unbake
 
+
 @dataclass
 class JsonKeeper:
     json: dict
 
+
 class MyBakery(Bakery):
     json_keeper: JsonKeeper = Cake(JsonKeeper, json={"value": 42})
+
 
 async with MyBakery() as bakery:
     keeper_copy: Pastry = copy(MyBakery.json_keeper)  # <<< Note: it's pastry, not cake ;)
@@ -67,14 +72,17 @@ from dataclasses import dataclass
 from typing import Optional
 from bakery import Bakery, Cake
 
+
 @dataclass
 class NestedSettings:
     settings: Optional["NestedSettings"]
     json: dict
 
+
 class MyBakery(Bakery):
     settings1: NestedSettings = Cake(NestedSettings, settings=None, json={"value": 42})
     settings2: NestedSettings = Cake(NestedSettings, settings=settings1, json={})
+
 
 async with MyBakery() as bakery:
     assert (

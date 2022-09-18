@@ -22,18 +22,22 @@ Let's see hot to use `bakery_mock` fixture to test your bakery.
 from dataclasses import dataclass
 from bakery import Bakery, Cake
 
+
 @dataclass
 class Settings:
     dsn: str
-    
+
+
 class MyBakery(Bakery):
     dsn: str = Cake("real dsn")
     settings: Settings = Cake(Settings, dsn=dsn)
-     
+
+
 # file test_example.py
 from bakery.testbakery import BakeryMock
 from example import MyBakery
-        
+
+
 async def test_example_1(bakery_mock: BakeryMock) -> None:
     bakery_mock.dsn = "fake dsn"  # <<< patch dsn
     async with bakery_mock(MyBakery):  # <<< mock against MyBakery
@@ -50,6 +54,7 @@ You could also patch attributes **after** bakery was opened. But you should real
 
 ```python
 # file test_example.py
+
 
 async def test_example_2(bakery_mock: BakeryMock) -> None:
     bakery: MyBakery = await MyBakery.aopen()  # open bakery anywhere
@@ -73,20 +78,22 @@ So, if you will patch the recipe with another recipe, that incompatible with the
 ```python
 # file test_example.py
 
+
 async def test_example_with_error(bakery_mock: BakeryMock) -> None:
     bakery_mock.settings = 1
     # TypeError: 'int' object is not callable
     # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    async with bakery_mock(MyBakery): 
+    async with bakery_mock(MyBakery):
         pass
 ```
 You could patch `settings` with lambda function, with `dsn` parameter and any return value:
 ```python
 # file test_example.py
 
+
 async def test_example_3(bakery_mock: BakeryMock) -> None:
     bakery_mock.settings = lambda dsn: "any value"
-    async with bakery_mock(MyBakery): 
+    async with bakery_mock(MyBakery):
         assert MyBakery().settings == "any value"
 ```
 
@@ -94,23 +101,24 @@ You could also patch the whole cake: just assign the cake object to correspondin
 ```python
 # file test_example.py
 
+
 async def test_example_4(bakery_mock: BakeryMock) -> None:
     bakery_mock.settings = Cake(1)
-    async with bakery_mock(MyBakery): 
+    async with bakery_mock(MyBakery):
         assert MyBakery().settings == 1
-
 ```
 Hand made cakes are also supported:
 ```python
 # file test_example.py
 from bakery import hand_made, BakingMethod
 
+
 async def test_example_5(bakery_mock: BakeryMock) -> None:
-    bakery_mock.settings = hand_made( 
+    bakery_mock.settings = hand_made(
         Cake(list),
         cake_baking_method=BakingMethod.BAKE_NO_BAKE,
     )
-    async with bakery_mock(MyBakery): 
+    async with bakery_mock(MyBakery):
         assert MyBakery().settings is list
 ```
 

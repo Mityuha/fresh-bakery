@@ -9,9 +9,11 @@ If you will define cake with constant built-in type value, value will remain unt
 ```python
 from bakery import Bakery, Cake
 
+
 class MyBakery(Bakery):
     bytes_const: bytes = Cake(b"bytes")
     list_const: list[int] = Cake([1, 2, 3])
+
 
 async with MyBakery() as bakery:
     assert bakery.bytes_const == b"bytes"
@@ -25,20 +27,25 @@ If you will define cake with any callable object and provide all positional and 
 ```python
 from bakery import Bakery, Cake
 
+
 def plus_one(value: int) -> int:
     return value + 1
+
 
 class Splitter:
     def __init__(self, value: str, sep: str = "."):
         self.values: list[str] = value.split(sep)
+
     def __call__(self) -> list[str]:
         return self.values
+
 
 class MyBakery(Bakery):
     two: int = Cake(plus_one, 1)
     three: int = Cake(plus_one, two)
     splitter: Splitter = Cake(Splitter, "one:two:three", sep=":")
     one_two_three: list[str] = Cake(splitter)
+
 
 async with MyBakery() as bakery:
     assert bakery.two == 2
@@ -61,9 +68,11 @@ from typing import Iterator
 
 from bakery import Bakery, Cake
 
+
 @dataclass
 class File:
     is_opened: bool
+
 
 @contextmanager
 def set_opened(file: File) -> Iterator[File]:
@@ -71,10 +80,13 @@ def set_opened(file: File) -> Iterator[File]:
     yield file
     file.is_opened = False
 
+
 FILE: File = File(is_opened=False)
+
 
 class MyBakery(Bakery):
     opened_file: File = Cake(set_opened(FILE))
+
 
 assert not FILE.is_opened
 
@@ -92,11 +104,13 @@ In this example we defined variable `FILE` as global variable and then passed it
 # imports and statements
 # from example above
 
+
 class MyBakery(Bakery):
     file: File = Cake(File, is_opened=False)
-    opened_file: File = Cake(    # <<< Bake from context manager
+    opened_file: File = Cake(  # <<< Bake from context manager
         Cake(set_opened, file),  # <<< Bake from callable
     )
+
 
 async with MyBakery() as bakery:
     assert bakery.file.is_opened
@@ -113,12 +127,15 @@ If you will define cake with coroutine object (or any awaitable object), the val
 ```python
 from bakery import Bakery, Cake
 
+
 async def plus_one(value: int) -> int:
     return value + 1
 
+
 class MyBakery(Bakery):
-    two: int = Cake(plus_one(1))      # <<< Bake from awaitable (coroutine)
+    two: int = Cake(plus_one(1))  # <<< Bake from awaitable (coroutine)
     three: int = Cake(plus_one, two)  # <<< Bake from coroutine function
+
 
 async with MyBakery() as bakery:
     assert bakery.two == 2
@@ -139,11 +156,14 @@ If you will define cake with any custom object (like custom class), this object 
 ```python
 from bakery import Bakery, Cake
 
+
 class OneKeeper:
     ONE = 1
 
+
 class MyBakery(Bakery):
     keeper: OneKeeper = Cake(OneKeeper())
+
 
 async with MyBakery() as bakery:
     assert bakery.keeper.ONE == 1
@@ -171,6 +191,7 @@ The answer is from async context manager, because it is checked first. But what 
 from typing import Any
 from bakery import Bakery, BakingMethod, Cake, hand_made
 
+
 class CmvsAcm:
     def __init__(self):
         self.is_acm: bool = False
@@ -179,6 +200,7 @@ class CmvsAcm:
     def __enter__(self) -> "CmvsAcm":
         self.is_cm = True
         return self
+
     def __exit__(self, *_args: Any) -> None:
         self.is_cm = False
         return None
@@ -186,16 +208,19 @@ class CmvsAcm:
     async def __aenter__(self) -> "CmvsAcm":
         self.is_acm = True
         return self
+
     async def __aexit__(self, *_args: Any) -> None:
         self.is_acm = False
         return None
 
+
 class MyBakery(Bakery):
     acm_wins: CmvsAcm = Cake(CmvsAcm())
     cm_wins: CmvsAcm = hand_made(
-        Cake(CmvsAcm()), 
-	cake_baking_method=BakingMethod.BAKE_FROM_CM,
+        Cake(CmvsAcm()),
+        cake_baking_method=BakingMethod.BAKE_FROM_CM,
     )
+
 
 async with MyBakery() as bakery:
     assert bakery.acm_wins.is_acm

@@ -19,7 +19,7 @@ from Bakery import Cake
 
 val: int = Cake(1)
 print(type(val.a))  # <<< <class 'bakery.piece_of_cake.PieceOfCake'>
-print(type(val.a.b.c)) # <<< <class 'bakery.piece_of_cake.PieceOfCake'>
+print(type(val.a.b.c))  # <<< <class 'bakery.piece_of_cake.PieceOfCake'>
 print(val.a["key"].c)  # <<< Cake '<anon>'.a[key].c
 ```
 When you try to get `Pastry`'s attribute or item you always receive a `PieceOfCake` object. No matter what attributes/items you try receive. `PieceOfCake` object just "remember" the order of operations. And sometime in the future it will be an error if the real object has no attribute/item.
@@ -39,11 +39,12 @@ Roughly equivalent to:
 from typing import Any
 from bakery import Pastry, PieceOfCake
 
+
 async def bake(recipe: Any) -> Any:
     if isinstance(recipe, (Pastry, PieceOfCake)):
         await bake(recipe)  # recursion here
         recipe = recipe()
-    
+
     # bake recipe here
 ```
 
@@ -51,6 +52,7 @@ async def bake(recipe: Any) -> Any:
 Anonymous cake are just a cake without a name
 ```python
 from bakery import Bakery, Cake
+
 
 class MyBakery(Bakery):
     int_val: int = Cake(Cake(1))
@@ -65,11 +67,13 @@ anon_cake: int = Cake(1)
 await bake(anon_cake)
 assert is_baked(anon_cake)
 
+
 class MyBakery(Bakery):
     int_val: int = Cake(anon_cake)
 
+
 async with MyBakery() as bakery:
-    assert bakery.int_val == 1  d
+    assert bakery.int_val == 1
 
 # anon_cake is implicitly unbaked here
 assert not is_baked(anon_cake)
