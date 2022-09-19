@@ -307,6 +307,11 @@ async def create_person(
     person_id: int = await controller.insert_person(request)
     return {"person_id": person_id}
 ```
+To run the example, you will need to install the dependencies:
+```
+pip install fastapi databases asyncpg loguru fresh-bakery
+```
+And also have PostgreSQL running
 
 For a more complete example, see [bakery examples](https://github.com/Mityuha/fresh-bakery/tree/main/examples).
 
