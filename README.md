@@ -249,10 +249,18 @@ async def create_person(
     person_id: typing.Final[int] = random.randint(10**1, 10**6)
     return await inversed_controller.fetch_person(person_id)
 ```
-To run the example, you will need to install the following dependencies:
-```
-pip install fastapi loguru fresh-bakery
-```
+To run this example, you will need to do the following:
+1. Install dependencies:
+    ```
+    pip install uvicorn fastapi loguru fresh-bakery
+    ```
+1. Save the example text to the file test.py
+1. Run uvicorn
+   ```
+   uvicorn test:MY_APP
+   ```
+1. Open this address in the browser: http://127.0.0.1:8000/docs#/default/create_person_person_random__get
+1. And don't forget to read the logs in the console
 
 For a more complete examples, see [bakery examples](https://github.com/Mityuha/fresh-bakery/tree/main/examples).
 
