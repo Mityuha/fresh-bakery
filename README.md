@@ -100,60 +100,58 @@ if __name__ == "__main__":
 ### FastAPI example
 This is a full-fledged complex example of how you can use IoC with your FastAPI application:
 ```python
+import asyncio
+import random
 import typing
 
 import bakery
 import fastapi
 import pydantic
 from loguru import logger
-from databases import Database
-from databases.interfaces import Record
 
 
-# This is your dependencies (example)
-class ServiceDatabase:
-    """Service database."""
+# The following is a long and boring list of dependencies
+class PersonOut(pydantic.BaseModel):
+    """Person out."""
 
-    def __init__(self, connection: Database) -> None:
-        self._connection: Database = connection
+    first_name: str
+    second_name: str
+    age: int
+    person_id: int
 
-    async def __aenter__(self) -> "ServiceDatabase":
+
+class FakeDbConnection:
+    """Fake db connection."""
+
+    def __init__(self, *_: typing.Any, **__: typing.Any):
+        ...
+
+
+class DatabaseFakeService:
+    """Fake database layer."""
+
+    def __init__(self, connection: FakeDbConnection) -> None:
+        # wannabe connection only for test purposes
+        self._connection: FakeDbConnection = connection
+
+    async def __aenter__(self) -> "DatabaseFakeService":
         """On startup."""
-        await self._connection.connect()
         return self
 
     async def __aexit__(self, *_args: typing.Any) -> None:
-        """On shutdown."""
-        await self._connection.disconnect()
+        """Wannabe shutdown."""
+        await asyncio.sleep(0)
 
-    async def fetch_person(self, person_id: int) -> typing.Mapping:
-        """Fetch tenant table data by tenant name."""
-        query: str = """
-        SELECT *
-        FROM person p
-        WHERE p.id=:person_id;"""
-        values: dict[str, int] = dict(person_id=person_id)
-        logger.debug(f"Get person by id {query = }, {values = }")
-        row: typing.Optional[Record] = await self._connection.fetch_one(
-            query=query,
-            values=values,
-        )
-        return row if row else {}  # type: ignore
-
-    async def insert_person(self, first_name: str, second_name: str, age: int) -> int:
-        """Insert person."""
-        query: str = """
-        INSERT INTO person(first_name, second_name, age)
-        VALUES (:first_name, :second_name, :age)
-        RETURNING id"""
-
-        values: dict = dict(
-            first_name=first_name,
-            second_name=second_name,
-            age=age,
-        )
-        logger.debug(f"Insert into person table {query = }, {values = }")
-        return await self._connection.fetch_val(query=query, values=values)
+    async def fetch_person(
+        self, person_id: int
+    ) -> dict[typing.Literal['first_name', 'second_name', 'age', 'id'], str | int]:
+        """Fetch (fictitious) person."""
+        return {
+            'first_name': random.choice(('John', 'Danku', 'Ichigo', 'Sakura', 'Jugem', 'Ittō')),
+            'second_name': random.choice(( 'Dow', 'Kurosaki', 'Amaterasu', 'Kasō', 'HiryuGekizokuShintenRaiho')),
+            'age': random.randint(18, 120),
+            'id': person_id,
+        }
 
 
 class Settings(pydantic.BaseSettings):
@@ -166,37 +164,6 @@ class Settings(pydantic.BaseSettings):
     postgres_pool_max_size: int = 20
     controller_logger_name: str = "[Controller]"
 
-    def __str__(self) -> str:
-        return (
-            f"postgres_pool_min_size: {self.postgres_pool_min_size}, "
-            f"postgres_pool_max_size: {self.postgres_pool_max_size}, "
-            f"controller_logger_name: {self.controller_logger_name}"
-        )
-
-
-class DatabaseInterface(typing.Protocol):
-    """Database interface."""
-
-    async def fetch_person(self, person_id: int) -> typing.Mapping:
-        """Fetch person."""
-
-    async def insert_person(self, first_name: str, second_name: str, age: int) -> int:
-        """Insert person."""
-
-
-class PersonIn(pydantic.BaseModel):
-    """Person in."""
-
-    first_name: str
-    second_name: str
-    age: int
-
-
-class PersonOut(PersonIn):
-    """Person out."""
-
-    person_id: int
-
 
 class ServiceController:
     """Service controller."""
@@ -204,53 +171,32 @@ class ServiceController:
     def __init__(
         self,
         *,
-        database: DatabaseInterface,
+        database: DatabaseFakeService,
         logger_name: str,
     ):
-        """Init."""
-
         self._database = database
         self._logger_name = logger_name
 
     def __repr__(self) -> str:
         return self._logger_name
 
-    async def insert_person(self, person: PersonIn, /) -> int:
-        """Insert person.
-
-        return id.
-        """
-        logger.debug(f"{self}: inserting person {person}")
-        person_id: int = await self._database.insert_person(
-            first_name=person.first_name,
-            second_name=person.second_name,
-            age=person.age,
-        )
-        logger.debug(f"{self}: person successfully inserted with id {person_id}")
-        return person_id
-
-    async def fetch_person(self, person_id: int, /) -> typing.Optional[PersonOut]:
+    async def fetch_person(self, person_id: int, /) -> PersonOut | None:
         """Fetch person by id."""
-        logger.debug(f"{self}: fetching person by id {person_id}")
-        person: typing.Optional[typing.Mapping] = await self._database.fetch_person(person_id)
+        person: typing.Mapping | None = await self._database.fetch_person(person_id)
         if not person:
-            logger.info(f"{self}: person {person_id} not found.")
             return None
         res: PersonOut = PersonOut(
             first_name=person["first_name"],
             second_name=person["second_name"],
             age=person["age"],
-            person_id=person["id"],
+            person_id=person_id,
         )
-        logger.info(f"{self}: person {person_id} found: {res}")
         return res
 
 
 def get_settings() -> Settings:
     """Get settings."""
-    settings: Settings = Settings()
-    logger.debug(f"Settings: {settings}")
-    return settings
+    return Settings()
 
 
 # Here is your specific IoC container
@@ -258,15 +204,15 @@ class MainBakeryIOC(bakery.Bakery):
     """Main bakery."""
 
     config: Settings = bakery.Cake(get_settings)
-    _connection: Database = bakery.Cake(
-        Database,
+    _connection: FakeDbConnection = bakery.Cake(
+        FakeDbConnection,
         config.postgres_dsn,
         min_size=config.postgres_pool_min_size,
         max_size=config.postgres_pool_max_size,
     )
-    database: ServiceDatabase = bakery.Cake(
+    database: DatabaseFakeService = bakery.Cake(
         bakery.Cake(
-            ServiceDatabase,
+            DatabaseFakeService,
             connection=_connection,
         )
     )
@@ -294,26 +240,21 @@ MY_APP: fastapi.FastAPI = fastapi.FastAPI(
 )
 
 
-# And, finally, an example of how you can use your dependencies
-@MY_APP.post(
-    '/person',
-    response_model=typing.TypedDict("PersonId", {"person_id": int}),
-    status_code=201
-)
+# Finally, an example of how you can use your dependencies
+@MY_APP.get('/person/random/')
 async def create_person(
-    request: PersonIn,
-    controller: ServiceController = fastapi.Depends(MainBakeryIOC.controller),
-) -> dict:
-    person_id: int = await controller.insert_person(request)
-    return {"person_id": person_id}
+    inversed_controller: ServiceController = fastapi.Depends(MainBakeryIOC.controller),
+) -> PersonOut | None:
+    """Fetch random person from the «database»."""
+    person_id: typing.Final[int] = random.randint(10**1, 10**6)
+    return await inversed_controller.fetch_person(person_id)
 ```
-To run the example, you will need to install the dependencies:
+To run the example, you will need to install the following dependencies:
 ```
-pip install fastapi databases asyncpg loguru fresh-bakery
+pip install fastapi loguru fresh-bakery
 ```
-And also have PostgreSQL running
 
-For a more complete example, see [bakery examples](https://github.com/Mityuha/fresh-bakery/tree/main/examples).
+For a more complete examples, see [bakery examples](https://github.com/Mityuha/fresh-bakery/tree/main/examples).
 
 ## Dependencies
 
