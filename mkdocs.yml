@@ -1,0 +1,25 @@
+site_name: Fresh Bakery
+site_description: Lightweight dependency injection framework
+
+theme:
+    name: 'material'
+
+repo_name: mityuha/fresh-bakery
+repo_url: https://github.com/mityuha/fresh-bakery
+
+nav:
+    - Introduction: 'index.md'
+    - Bakery and Cakes: 'bakery_and_cakes.md'
+    - Baking Methods: 'baking_methods.md'
+    - Test Bakery: 'test_bakery.md'
+    - Bakery and Cakes (Advanced): 'bakery_and_cakes_advanced.md'
+
+markdown_extensions:
+  - mkautodoc
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
