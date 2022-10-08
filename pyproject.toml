@@ -132,17 +132,17 @@ envlist = py36,py37,py38,py39,py310
 
 [testenv]
 deps =
-    black
-    isort
-    pylint
+    black==22.8.0
+    isort==5.10.1
+    pylint==2.13.9
 
-    pytest
-    pytest-mock
-    typing_extensions
-    pytest-trio
-    types-dataclasses
+    pytest==7.0.1
+    pytest-mock==3.6.1
+    typing_extensions==4.1.1
+    pytest-trio==0.7.0
+    types-dataclasses==0.6.6
 
-    mypy
+    mypy==0.971
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/
