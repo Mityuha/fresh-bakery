@@ -177,7 +177,7 @@ def is_piece_of_cake(value: Any) -> bool:
 def cake_ingredients(cake: Cakeable[Any]) -> IngredientsProto:
     """Cake ingredients."""
     if not is_cake(cake):
-        raise ValueError(f"Only cakes are baked in the bakery, not {cake}")
+        raise ValueError(f"Only cakes are baking in the bakery, not {cake}")
     return cast(IngredientsProto, getattr(cake, "_Pastry__ingredients"))
 
 
