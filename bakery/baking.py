@@ -23,17 +23,16 @@ from .stuff import (
     flatten,
     is_baked,
     is_cake,
+    is_piece_of_cake,
     replace_cakes,
 )
 
 
 def determine_baking_method(recipe: Any) -> BakingMethod:
     """Determine the first available baking method for recipe."""
-    if is_cake(recipe):
-        logger.info(
-            f"Cannot determine strategy for recipe {recipe} right now. "
-            "Bake recipe and try again later"
-        )
+    if is_cake(recipe) or is_piece_of_cake(recipe):
+        # Baking method depends on what object
+        # really is inside cake/piece_of_cake
         return BakingMethod.BAKE_AUTO
 
     for method in [
@@ -164,7 +163,7 @@ class Ingredients:
                 await bake(recipe)
 
         recipe = self.recipe
-        if is_cake(recipe):
+        if is_cake(recipe) or is_piece_of_cake(recipe):
             recipe = self.recipe()
 
         if not self.cake_baking_method:
