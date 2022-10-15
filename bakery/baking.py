@@ -215,12 +215,15 @@ class Ingredients:
         """Unbake cake."""
 
         # Unbake anonymous recipes even if not self.is_baked
-        # Cache recipe called value (recipe())
+        # Save recipe called value (recipe())
         # because it will be impossible to do it
         # after recipe unbaked
         recipe: Any = self.recipe
+
         if (is_cake(recipe) and is_baked(recipe)) or (
-            is_piece_of_cake(recipe)  # and is_baked(recipe.cake) # tDO
+            is_piece_of_cake(recipe)
+            # call recipe if only underlying cake is baked
+            and is_baked(recipe.cake)
         ):
             recipe = recipe()
 
@@ -233,11 +236,14 @@ class Ingredients:
         if not self.is_baked:
             return
 
-        if self.cake_baking_method == BakingMethod.BAKE_FROM_CM:
-            recipe.__exit__(exc_type, exc_value, traceback)
+        # All cakes and piece_of_cakes should already be unbaked
+        # at this moment
+        if not (is_cake(recipe) or is_piece_of_cake(recipe)):
+            if self.cake_baking_method == BakingMethod.BAKE_FROM_CM:
+                recipe.__exit__(exc_type, exc_value, traceback)
 
-        elif self.cake_baking_method == BakingMethod.BAKE_FROM_ACM:
-            await recipe.__aexit__(exc_type, exc_value, traceback)
+            elif self.cake_baking_method == BakingMethod.BAKE_FROM_ACM:
+                await recipe.__aexit__(exc_type, exc_value, traceback)
 
         logger.debug(f"{self} is unbaked")
 

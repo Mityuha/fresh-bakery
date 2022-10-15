@@ -4,9 +4,10 @@ https://github.com/Mityuha/fresh-bakery/issues/13.
 """
 
 from contextlib import contextmanager
+from dataclasses import dataclass
 from typing import Any, AsyncIterator, Iterator
 
-from bakery import Bakery, BakingMethod, Cake, hand_made
+from bakery import Bakery, BakingMethod, Cake, hand_made, unbake
 from . import asynccontextmanager
 
 
@@ -108,3 +109,47 @@ async def test_piece_of_cake_with_hand_made() -> None:
 
     async with MyBakery() as bakery:
         assert bakery.check
+
+
+async def test_awkward_unbaking() -> None:
+    """Test awkward piece of cake unbaking."""
+
+    class CMTester:
+        """(A)CM tester."""
+
+        async def __aenter__(self) -> str:
+            return "avalue"
+
+        async def __aexit__(self, *_args: Any) -> None:
+            return None
+
+        def __enter__(self) -> str:
+            return "value"
+
+        def __exit__(self, *_args: Any) -> None:
+            return None
+
+    @dataclass
+    class Wrapper:
+        """CMTester wrapper."""
+
+        obj: CMTester
+
+    class AwkBakery(Bakery):
+        """Awkward bakery."""
+
+        wrapper: Wrapper = Cake(Wrapper, obj=Cake(CMTester))
+        acm_obj = hand_made(
+            wrapper.obj,
+            cake_baking_method=BakingMethod.BAKE_FROM_ACM,
+        )
+        cm_obj = hand_made(
+            wrapper.obj,
+            cake_baking_method=BakingMethod.BAKE_FROM_CM,
+        )
+
+    async with AwkBakery() as bakery:
+        assert bakery.acm_obj == "avalue"
+        assert bakery.cm_obj == "value"
+        # awkward thing goes here
+        await unbake(AwkBakery.wrapper)
