@@ -219,7 +219,9 @@ class Ingredients:
         # because it will be impossible to do it
         # after recipe unbaked
         recipe: Any = self.recipe
-        if is_cake(recipe) and is_baked(recipe):
+        if (is_cake(recipe) and is_baked(recipe)) or (
+            is_piece_of_cake(recipe)  # and is_baked(recipe.cake) # tDO
+        ):
             recipe = recipe()
 
         _recipe: Any

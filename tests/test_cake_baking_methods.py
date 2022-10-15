@@ -1,6 +1,9 @@
 """Test bakery methods."""
+from dataclasses import dataclass
 from typing import Any, Iterator
 from uuid import UUID, uuid4
+
+import pytest
 
 from bakery import Bakery, BakingMethod, Cake, hand_made
 
@@ -78,10 +81,6 @@ async def test_cake_methods() -> None:
         def __exit__(self, *_args: Any) -> None:
             assert self.inside
             self.inside = False
-
-        async def open(self) -> str:
-            """Open the door."""
-            return "door"
 
     class Town(Bakery):
         """Town."""
@@ -192,3 +191,89 @@ async def test_cake_no_bake() -> None:
 
     async with MyBakery():
         assert MyBakery.cake() == value
+
+
+@pytest.mark.parametrize("hand_made_cake", [True, False])
+async def test_hand_made_any_object(hand_made_cake: bool) -> None:
+    """Test hand made any object.
+
+    https://github.com/Mityuha/fresh-bakery/issues/26
+    """
+
+    class House:
+        """Car."""
+
+        def __init__(self, value: str, avalue: str):
+            self.inside: bool = False
+            self.ainside: bool = False
+            self.value: str = value
+            self.avalue: str = avalue
+
+        async def __aenter__(self) -> str:
+            assert not self.ainside
+            self.ainside = True
+            return self.avalue
+
+        def __call__(self) -> str:
+            return "something"
+
+        async def __aexit__(self, *_args: Any) -> None:
+            assert self.ainside
+            self.ainside = False
+
+        def __enter__(self) -> str:
+            assert not self.inside
+            self.inside = True
+            return self.value
+
+        def __exit__(self, *_args: Any) -> None:
+            assert self.inside
+            self.inside = False
+
+    @dataclass
+    class HouseWrapper:
+        """House wrapper."""
+
+        house: House
+
+    class Town(Bakery):
+        """Town."""
+
+        _value: str = Cake("value")
+        _avalue: str = Cake("avalue")
+
+        house1: House = Cake(House, value=_value, avalue=_avalue)
+        house1_value = hand_made(
+            Cake(house1)
+            if hand_made_cake
+            else House(value="value", avalue="avalue"),  # <<< Note: constant object
+            cake_baking_method=BakingMethod.BAKE_FROM_CM,
+        )
+        house1_avalue = hand_made(
+            Cake(house1) if hand_made_cake else House(value="value", avalue="avalue"),
+            cake_baking_method=BakingMethod.BAKE_FROM_ACM,
+        )
+        house1_smth = hand_made(
+            Cake(house1) if hand_made_cake else House(value="value", avalue="avalue"),
+            cake_baking_method=BakingMethod.BAKE_FROM_CALL,
+        )
+
+        house2: House = Cake(House, value=_value, avalue=_avalue)
+        house_wrap: HouseWrapper = Cake(HouseWrapper, house=house2)
+        house2_value = hand_made(
+            Cake(house_wrap.house) if hand_made_cake else house_wrap.house,
+            cake_baking_method=BakingMethod.BAKE_FROM_CM,
+        )
+        house2_avalue = hand_made(
+            Cake(house_wrap.house) if hand_made_cake else house_wrap.house,
+            cake_baking_method=BakingMethod.BAKE_FROM_ACM,
+        )
+        house2_smth = hand_made(
+            Cake(house_wrap.house) if hand_made_cake else house_wrap.house,
+            cake_baking_method=BakingMethod.BAKE_FROM_CALL,
+        )
+
+    async with Town() as town:
+        assert town.house1_value == town.house1.value == town.house2_value
+        assert town.house1_avalue == town.house1.avalue == town.house2_avalue
+        assert town.house1_smth == "something" == town.house2_smth

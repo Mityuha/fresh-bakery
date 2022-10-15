@@ -28,6 +28,7 @@ from .stuff import (
     IngredientsProto,
     assert_baked,
     cake_ingredients,
+    is_cake,
 )
 
 
@@ -91,6 +92,9 @@ P = ParamSpec("P")
 
 def hand_made(cake: T, cake_baking_method: BakingMethod) -> T:
     """Hand made cake."""
+
+    if not is_cake(cake):
+        cake = Cake(cake)
 
     ingredients: IngredientsProto = cake_ingredients(cast(Cakeable[Any], cake))
     ingredients.cake_baking_method = cake_baking_method
