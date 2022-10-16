@@ -221,11 +221,10 @@ class Ingredients:
         # after recipe unbaked
         recipe: Any = self.recipe
 
-        if (is_cake(recipe) and is_baked(recipe)) or (
-            is_piece_of_cake(recipe)
-            # call recipe if only underlying cake is baked
-            and is_baked(recipe.cake)
-        ):
+        is_cake_and_baked: bool = is_cake(recipe) and is_baked(recipe)
+        is_poc_and_baked: bool = is_piece_of_cake(recipe) and is_baked(recipe.cake)
+
+        if is_cake_and_baked or is_poc_and_baked:
             recipe = recipe()
 
         _recipe: Any
