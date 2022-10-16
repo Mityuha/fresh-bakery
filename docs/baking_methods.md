@@ -217,7 +217,7 @@ class CmvsAcm:
 class MyBakery(Bakery):
     acm_wins: CmvsAcm = Cake(CmvsAcm())
     cm_wins: CmvsAcm = hand_made(
-        Cake(CmvsAcm()),
+        Cake(CmvsAcm()),  # <<< Note about external cake
         cake_baking_method=BakingMethod.BAKE_FROM_CM,
     )
 
@@ -233,3 +233,118 @@ async with MyBakery() as bakery:
 In case of `acm_wins` cake it's baked from async context manager, because async context manager has higher priority.   
 In cake of `cm_wins` cake it's baked from sync context manager, because `BAKE_FROM_CM` method explicitly specified.
 
+## A little more about hand made cakes
+In principle you can hand made any object, not only cakes. For example, it could be a `PieceOfCake` object:
+
+```python
+from dataclasses import dataclass
+from typing import Any
+
+from bakery import Bakery, BakingMethod, Cake, hand_made
+
+
+class Room:
+    def __call__(self) -> str:
+        return "call"
+
+    def __enter__(self) -> str:
+        return "enter"
+
+    def __exit__(self, *_args: Any) -> None:
+        return None
+
+
+@dataclass
+class House:
+    room: Room
+
+
+class MyBakery(Bakery):
+    house: House = Cake(House, room=Cake(Room))
+    room_val = hand_made(
+        house.room,  # <<< PieceOfCake object
+        cake_baking_method=BakingMethod.BAKE_FROM_CALL,
+    )
+
+
+async with MyBakery() as bakery:
+    assert bakery.room_val == "call"
+```
+Or it could be any external object:
+```python
+from bakery import Bakery, BakingMethod, Cake, hand_made
+
+
+class Room:
+    pass
+
+
+class MyBakery(Bakery):
+    room_type = hand_made(
+        Room,  # <<< Room object
+        cake_baking_method=BakingMethod.BAKE_NO_BAKE,
+    )
+
+
+async with MyBakery() as bakery:
+    assert bakery.room_type is Room
+```
+
+!!! danger
+    Be careful about hand made any external objects. Some of their dependencies could leave unresolved. Check out an example below.
+
+Let's consider an example where import time created objects mixed up with runtime created objects:
+```python
+from bakery import Bakery, BakingMethod, Cake, hand_made
+
+
+class CupOfTea:
+    def __init__(self, tea: str):
+        self.tea: str = tea
+
+    def __call__(self) -> str:
+        return "drinking"
+
+
+class MyBakery(Bakery):
+    tea: str = Cake("black tea")
+    cup_of_tea: CupOfTea = hand_made(
+        CupOfTea(tea),  # <<< CupOfTea instance is created at import time
+        cake_baking_method=BakingMethod.BAKE_NO_BAKE,
+    )
+
+
+async with MyBakery() as bakery:
+    assert isinstance(bakery.cup_of_tea, CupOfTea)
+    assert (
+        bakery.cup_of_tea.tea == bakery.tea
+    )  # <<< AssertionError: assert Cake 'tea' == 'black tea'
+```
+At first sight there is the valid example. But it fails at the last assertion because a `CupOfTea` instance (inside `hand_made` function) is being created at import time. The example above could be fixed by creating a `CupOfTea` instance using simple `Cake`:
+```python
+from bakery import Bakery, BakingMethod, Cake, hand_made
+
+
+class CupOfTea:
+    def __init__(self, tea: str):
+        self.tea: str = tea
+
+    def __call__(self) -> str:
+        return "drinking"
+
+
+class MyBakery(Bakery):
+    tea: str = Cake("black tea")
+    cup_of_tea: CupOfTea = Cake(CupOfTea, tea)  # <<< CupOfTea instance is created on bakery opening
+
+    # or using `BAKE_FROM_CALL` baking method
+    # cup_of_tea: CupOfTea = hand_made(
+    #        Cake(CupOfTea, tea),
+    #        cake_baking_method=BakingMethod.BAKE_FROM_CALL,
+    #    )
+
+
+async with MyBakery() as bakery:
+    assert isinstance(bakery.cup_of_tea, CupOfTea)
+    assert bakery.cup_of_tea.tea == bakery.tea
+```
