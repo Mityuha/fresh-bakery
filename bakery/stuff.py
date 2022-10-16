@@ -174,10 +174,15 @@ def is_piece_of_cake(value: Any) -> bool:
     return isinstance(value, FictionalPiece)
 
 
+def is_cake_or_piece(value: Any) -> bool:
+    """Is cake or piece of cake."""
+    return is_cake(value) or is_piece_of_cake(value)
+
+
 def cake_ingredients(cake: Cakeable[Any]) -> IngredientsProto:
     """Cake ingredients."""
     if not is_cake(cake):
-        raise ValueError(f"Only cakes are baked in the bakery, not {cake}")
+        raise ValueError(f"Only cakes are baking in the bakery, not {cake}")
     return cast(IngredientsProto, getattr(cake, "_Pastry__ingredients"))
 
 
@@ -241,7 +246,7 @@ def replace_cakes(obj: Any) -> Any:
     elif is_iterable(obj):
         res = type(obj)(replace_cakes(item) for item in obj)
 
-    elif is_cake(obj) or is_piece_of_cake(obj):
+    elif is_cake_or_piece(obj):
         res = obj()
 
     else:
