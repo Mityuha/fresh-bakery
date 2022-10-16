@@ -23,6 +23,7 @@ from .stuff import (
     flatten,
     is_baked,
     is_cake,
+    is_cake_or_piece,
     is_piece_of_cake,
     replace_cakes,
 )
@@ -30,7 +31,7 @@ from .stuff import (
 
 def determine_baking_method(recipe: Any) -> BakingMethod:
     """Determine the first available baking method for recipe."""
-    if is_cake(recipe) or is_piece_of_cake(recipe):
+    if is_cake_or_piece(recipe):
         # Baking method depends on what object
         # really is inside cake/piece_of_cake
         return BakingMethod.BAKE_AUTO
@@ -163,7 +164,7 @@ class Ingredients:
                 await bake(recipe)
 
         recipe = self.recipe
-        if is_cake(recipe) or is_piece_of_cake(recipe):
+        if is_cake_or_piece(recipe):
             recipe = self.recipe()
 
         if not self.cake_baking_method:
@@ -238,7 +239,7 @@ class Ingredients:
 
         # All cakes and piece_of_cakes should already be unbaked
         # at this moment
-        if not (is_cake(recipe) or is_piece_of_cake(recipe)):
+        if not is_cake_or_piece(recipe):
             if self.cake_baking_method == BakingMethod.BAKE_FROM_CM:
                 recipe.__exit__(exc_type, exc_value, traceback)
 
