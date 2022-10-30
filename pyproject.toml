@@ -146,7 +146,7 @@ deps =
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/
-    pylint bakery/ tests/  --disable=no-self-use,R0801,cyclic-import
+    pylint bakery/ tests/  --disable=no-self-use,R0801,cyclic-import,isinstance-second-argument-not-valid-type
     mypy bakery/ tests/ 
     pytest tests/ -x
 setenv =
