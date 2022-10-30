@@ -1,9 +1,21 @@
 """Test store."""
 
+import sys
 import types
 from copy import copy
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Callable, Dict, Iterator, List, Tuple, cast, no_type_check
+from typing import (
+    Any,
+    AsyncIterator,
+    Callable,
+    Dict,
+    Iterator,
+    List,
+    Tuple,
+    Type,
+    cast,
+    no_type_check,
+)
 
 import pytest
 
@@ -39,7 +51,11 @@ async def test_simple_bakery1() -> None:
         cpu1: CPU = Cake(CPU, core_num=core_num, manufacturer=manufacturer)
         cpu2: CPU = Cake(CPU, core_num=2, manufacturer="AMD")
 
-    with pytest.raises(AttributeError):
+    exception: Type[Exception] = AttributeError
+    if sys.version_info >= (3, 11):
+        exception = TypeError
+
+    with pytest.raises(exception):
         # Can only be used with instance
         async with MyPC:  # type: ignore
             pass
