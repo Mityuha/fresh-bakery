@@ -64,7 +64,7 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2"
+python = ">=3.6.2,<3.12"
 
 [tool.poetry.dev-dependencies]
 black = "*"
