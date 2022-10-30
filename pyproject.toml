@@ -64,12 +64,12 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<3.11"
+python = ">=3.6.2"
 
 [tool.poetry.dev-dependencies]
 black = "*"
 pydocstringformatter = [
-    {version = "*", python = ">=3.8,<3.11"},
+    {version = "*", python = ">=3.8"},
 ]
 isort = "*"
 mypy = "*"
@@ -128,7 +128,7 @@ omit = [
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py36,py37,py38,py39,py310
+envlist = py36,py37,py38,py39,py310,py311
 
 [testenv]
 deps =
@@ -159,4 +159,5 @@ python =
     3.8: py38
     3.9: py39
     3.10: py310
+    3.11: py311
 """
