@@ -32,7 +32,7 @@ use_parentheses= true
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.2.0"
+version = "0.2.1"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"
@@ -47,6 +47,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
