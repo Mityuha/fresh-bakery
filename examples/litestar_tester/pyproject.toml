@@ -8,11 +8,14 @@ authors = ["mityuha <mit.makaroff@gmail.com>"]
 python = "^3.11"
 litestar = "^2.0.0-beta.2"
 uvicorn = "^0.22.0"
+pytest = "^7.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
 isort = "^5.12.0"
 mypy = "^1.4.1"
+pytest-mock = "^3.11.1"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -21,3 +24,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 plugins = "bakery.mypy"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
