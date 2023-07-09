@@ -117,3 +117,29 @@ async def test_cake_wrapped_func_attribute() -> None:
 
         # cache hits are still the same
         assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore
+
+
+async def test_special_attributes_refactoring() -> None:
+    """Code refactoring for special attributes."""
+
+    class Controller:
+        """Controller."""
+
+        def __init__(self) -> None:
+            self.func = lambda x: x * 2
+
+    def mapper(func: Callable) -> Callable:
+        """Mapper."""
+        return func
+
+    class MyBakery(Bakery):
+        """Bakery."""
+
+        ctrl: Controller = Cake(Controller)
+        ctrl_func: Callable = Cake(
+            mapper,
+            Cake(getattr, ctrl, "func"),
+        )
+
+    async with MyBakery():
+        assert MyBakery().ctrl_func(10) == 20

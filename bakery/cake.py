@@ -94,7 +94,20 @@ class Pastry(CakeRecipe):
         return self.__ingredients()
 
     def __getattr__(self, piece_name: str) -> PieceOfCake:
-        """Cut a piece of cake."""
+        """Cut a piece of cake.
+
+        With __CAKE_ATTRIBUTE_ERROR_NAMES__ you can no longer write
+        the things like:
+        class MyBakery(Bakery):
+            ctrl: Any = Cake(Controller)
+            controller_func: Any = Cake(some_func, ctrl.func)  # or __wrapped__
+
+        There is the place where AttribureError exception will occured.
+        You can make a simple refactoring:
+        class MyBakery(Bakery):
+            ctrl: Any = Cake(Controller)
+            controller_func: Any = Cake(some_func, Cake(getattr, ctrl, "func"))
+        """
         if piece_name in self.__CAKE_ATTRIBUTE_ERROR_NAMES__:
             raise AttributeError(piece_name)
         # explicit __getattr__ call to avoid collisions
