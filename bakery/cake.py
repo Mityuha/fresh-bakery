@@ -43,6 +43,12 @@ class Pastry(CakeRecipe):
         ingredients: Ingredients,
     ):
         self.__ingredients: Final[Ingredients] = ingredients
+        self.__name__: Final = ingredients.__name__
+        self.__code__: Final = ingredients.__code__
+        self.__defaults__: Final = ingredients.__defaults__
+        self.__kwdefaults__: Final = ingredients.__kwdefaults__
+        self.__annotations__: Final = ingredients.__annotations__
+        self._is_coroutine: Final = ingredients._is_coroutine
 
     def __set_name__(self, _: Any, name: str) -> None:
         self.__ingredients.name = name

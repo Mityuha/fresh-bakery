@@ -104,6 +104,8 @@ class Ingredients:
     Cake internal state.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(
         self,
         recipe: Any,
@@ -132,6 +134,19 @@ class Ingredients:
         if self.cake_baking_method == BakingMethod.BAKE_NO_BAKE:
             self.result = self.recipe
             self.is_baked = True
+
+        self.__name__: Final = getattr(self.recipe, "__name__", None) or self.__call__.__name__
+        self.__code__: Final = getattr(self.recipe, "__code__", None) or self.__call__.__code__
+        self.__defaults__: Final = (
+            getattr(self.recipe, "__defaults__", None) or self.__call__.__defaults__
+        )
+        self.__kwdefaults__: Final = (
+            getattr(self.recipe, "__kwdefaults__", None) or self.__call__.__kwdefaults__
+        )
+        self.__annotations__: Final = (
+            getattr(self.recipe, "__annotations__", None) or self.__call__.__annotations__
+        )
+        self._is_coroutine: Final = getattr(self.recipe, "_is_coroutine", False)
 
     def __repr__(self) -> str:
         """Repr."""
