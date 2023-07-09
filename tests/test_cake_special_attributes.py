@@ -2,7 +2,8 @@
 
 For inspect module only.
 """
-from functools import partial
+from functools import lru_cache, partial
+from inspect import unwrap
 from typing import Any, Callable
 
 from bakery import Bakery, Cake, cake_ingredients
@@ -77,7 +78,42 @@ async def test_cake_partial_func_attribute() -> None:
     assert unwrap_partial(MyBakery.x2_multiplier) is MyBakery.x2_multiplier
 
     async with MyBakery():
+        assert unwrap_partial(MyBakery.x2_multiplier) is MyBakery.x2_multiplier
+        assert unwrap_partial(MyBakery.x6_multiplier) is MyBakery.x6_multiplier
         assert unwrap_partial(MyBakery.x2_multiplier()) is multiplier
         assert unwrap_partial(MyBakery.x6_multiplier()) is multiplier
 
         assert MyBakery.x6_multiplier()(6) == 36
+
+
+async def test_cake_wrapped_func_attribute() -> None:
+    """Test cake partial."""
+
+    def id_func(entity: str) -> str:
+        """Identity function."""
+        return entity
+
+    class MyBakery(Bakery):
+        """Bakery."""
+
+        id_func1: Callable = Cake(lru_cache, id_func)  # type: ignore
+        id_func2: Callable = Cake(lru_cache, id_func1)  # type: ignore
+
+    assert unwrap(MyBakery.id_func1) is MyBakery.id_func1
+
+    async with MyBakery():
+        assert unwrap(MyBakery.id_func1) is MyBakery.id_func1
+        assert unwrap(MyBakery.id_func2) is MyBakery.id_func2
+        assert unwrap(MyBakery.id_func1()) is id_func
+        assert unwrap(MyBakery.id_func2()) is id_func
+
+        assert MyBakery.id_func2()("str") == "str"
+        # cache hit
+        assert MyBakery.id_func2()("str") == "str"
+        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore
+
+        # source function call without cache
+        assert unwrap(MyBakery.id_func2())("str") == "str"
+
+        # cache hits are still the same
+        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore
