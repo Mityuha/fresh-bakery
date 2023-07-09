@@ -28,6 +28,7 @@ from .stuff import (
     IngredientsProto,
     assert_baked,
     cake_ingredients,
+    is_baked,
     is_cake,
 )
 
@@ -60,10 +61,25 @@ class Pastry(CakeRecipe):
     def __copy__(self) -> "Cakeable[Any]":
         """Copy itself with all ingredients and technologies.
 
+        If cake is not baked then such a cake's copy is cake itself.
+
         'Copy cake' just sounds like 'cupcake'. And I like cupcakes ;)
         """
-        assert_baked(cast(Cakeable[Any], self))  # we only copy proven recipes!
+        if not is_baked(self):
+            return self
+
         ingr_copy: Ingredients = self.__ingredients.__copy__()
+        return cast(Cakeable[Any], Pastry(ingr_copy))
+
+    def __deepcopy__(self, memo: Any) -> "Cakeable[Any]":
+        """Deep copy with all ingredients and technologies.
+
+        If cake is not baked then such a cake's deep copy is cake itself.
+        """
+        if not is_baked(self):
+            return self
+
+        ingr_copy: Ingredients = self.__ingredients.__deepcopy__(memo)
         return cast(Cakeable[Any], Pastry(ingr_copy))
 
     def __call__(self) -> Any:

@@ -8,7 +8,7 @@ __all__ = [
     "determine_baking_method",
     "unbake",
 ]
-
+from copy import deepcopy
 from inspect import isawaitable, iscoroutinefunction
 from typing import Any, AsyncContextManager, ContextManager, Optional, TypeVar
 
@@ -160,6 +160,17 @@ class Ingredients:
             *list(self.recipe_args),
             cake_baking_method=self.cake_baking_method,
             **dict(self.recipe_kwargs),
+        )
+        ingr_copy.name = self.name
+        return ingr_copy
+
+    def __deepcopy__(self, memo: Any) -> "Ingredients":
+        """Deep copy all ingredients and technologies."""
+        ingr_copy: Ingredients = Ingredients(
+            self.recipe,
+            *deepcopy(self.recipe_args),
+            cake_baking_method=self.cake_baking_method,
+            **deepcopy(self.recipe_kwargs),
         )
         ingr_copy.name = self.name
         return ingr_copy
