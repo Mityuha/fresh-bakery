@@ -12,6 +12,7 @@ from typing import (
     Callable,
     ContextManager,
     Optional,
+    Set,
     TypeVar,
     cast,
     overload,
@@ -38,6 +39,11 @@ class Pastry(CakeRecipe):
 
     Your item ingredients and cooking method stored here.
     """
+
+    __CAKE_ATTRIBUTE_ERROR_NAMES__: Final[Set[str]] = {
+        "func",  # partial
+        "__wrapped__",  # functools special attribute
+    }
 
     def __init__(
         self,
@@ -89,6 +95,8 @@ class Pastry(CakeRecipe):
 
     def __getattr__(self, piece_name: str) -> PieceOfCake:
         """Cut a piece of cake."""
+        if piece_name in self.__CAKE_ATTRIBUTE_ERROR_NAMES__:
+            raise AttributeError(piece_name)
         # explicit __getattr__ call to avoid collisions
         return PieceOfCake(self).__getattr__(piece_name)
 
