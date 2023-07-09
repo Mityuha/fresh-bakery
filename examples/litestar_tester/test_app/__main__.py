@@ -2,7 +2,7 @@
 
 https://docs.litestar.dev/latest/usage/dependency-injection.html
 """
-from typing import Any
+from typing import Any, List, Protocol, runtime_checkable
 
 from litestar import Controller, Litestar, Router, get
 from litestar.di import Provide
@@ -39,6 +39,12 @@ class MyBakery(Bakery):
     x2_multiplier: Any = Cake(lambda: x2_multiplier)
 
 
+@runtime_checkable
+class DatabaseProto(Protocol):
+    async def fetch_names(self) -> List[str]:
+        ...
+
+
 class MyController(Controller):
     path = "/controller"
     # on the controller
@@ -54,7 +60,7 @@ class MyController(Controller):
     )
     async def my_route_handler(
         self,
-        database: Database,
+        database: DatabaseProto,
         router_dependency: dict,
         controller_dependency: list,
         local_dependency: int,
@@ -81,6 +87,7 @@ async def on_startup() -> None:
 
 
 async def on_shutdown() -> None:
+    assert False
     await MyBakery.aclose()
 
 
