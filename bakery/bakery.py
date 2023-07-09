@@ -71,15 +71,13 @@ class Bakery:
 
         cls.__bakery_visitors__ += 1
 
-        cakes: Dict[str, Any] = {}
         exception: Optional[Union[Exception, BaseException]] = None
 
         # let's bake all your cakes
-        name: str
         cake: Cakeable[Any]
-        for name, cake in cls.__bakery_items__.items():
+        for cake in cls.__bakery_items__.values():
             try:
-                cakes[name] = await bake(cake)
+                await bake(cake)
             except (Exception, BaseException) as exc:  # pylint: disable=broad-except
                 exception = exc
                 logger.error(f'{cake} cannot be baked: {exc}')
