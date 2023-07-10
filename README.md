@@ -25,6 +25,7 @@ It is [nearly] production-ready, and gives you the following:
 * Zero dependencies.
 * `Mypy` compatible (no probably need for `# type: ignore`).
 * `FastAPI` fully compatible.
+*  [Litestar](https://github.com/litestar-org/litestar) compatible.
 * `Pytest` fully compatible (Fresh Bakery encourages the use of `pytest`).
 * Ease of testing.
 * Easily extended (contribution is welcome).
