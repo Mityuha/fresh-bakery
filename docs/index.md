@@ -1,9 +1,10 @@
 # Fresh Bakery
 Fresh Bakery is a lightweight [Dependency Injection](dependency_injection.md) framework. 
 
-Fresh Bakery can only be used within async applications, so if you have a sync one you probably should look for some alternatives.
+Actually, the only two asyncronious things about Fresh Bakery are its opening and its closing.
+It doesn't add up how you open and close your bakery: just make it asynchronously. That's it.
 
-Fresh Bakery is suitable for integrating against any async Web framework, such as [Starlette][starlette], [aiohttp][aiohttp], [FastAPI][fastapi] and so forth.
+Fresh Bakery is suitable for integrating against any async Web framework, such as [Starlette][starlette], [aiohttp][aiohttp], [FastAPI][fastapi], [Litestar][litestar] and so forth.
 
 **Requirements**: Python 3.6+
 
@@ -115,3 +116,4 @@ async def main() -> None:
 [starlette]: https://github.com/encode/starlette
 [aiohttp]: https://github.com/aio-libs/aiohttp
 [fastapi]: https://github.com/tiangolo/fastapi
+[litestar]: https://github.com/litestar-org/litestar
