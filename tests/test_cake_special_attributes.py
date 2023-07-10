@@ -96,8 +96,8 @@ async def test_cake_wrapped_func_attribute() -> None:
     class MyBakery(Bakery):
         """Bakery."""
 
-        id_func1: Callable = Cake(lru_cache, id_func)  # type: ignore
-        id_func2: Callable = Cake(lru_cache, id_func1)  # type: ignore
+        id_func1: Callable = Cake(lru_cache(None), id_func)  # type: ignore
+        id_func2: Callable = Cake(lru_cache(None), id_func1)  # type: ignore
 
     assert unwrap(MyBakery.id_func1) is MyBakery.id_func1
 
