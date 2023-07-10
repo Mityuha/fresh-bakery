@@ -1,6 +1,6 @@
 
 <p align="center">
-  <a href="https://fresh-bakery.readthedocs.io/en/latest/"><img width="300px" src="https://user-images.githubusercontent.com/17745407/187294435-a3bc6b26-b7df-43e5-abd3-0d7a7f92b71e.png" alt='fresh-bakery'></a>
+  <a href="https://fresh-bakery.readthedocs.io/en/latest/"><img width="300px" src="https://github.com/Mityuha/fresh-bakery/assets/17745407/9ad83683-03dc-43af-b66f-f8a010bde264" alt='fresh-bakery'></a>
 </p>
 <p align="center">
     <em>🍰 The little DI framework that tastes like a cake. 🍰</em>
@@ -25,7 +25,7 @@ It is [nearly] production-ready, and gives you the following:
 * Zero dependencies.
 * `Mypy` compatible (no probably need for `# type: ignore`).
 * `FastAPI` fully compatible.
-*  [Litestar](https://github.com/litestar-org/litestar) compatible.
+* `Litestar` compatible.
 * `Pytest` fully compatible (Fresh Bakery encourages the use of `pytest`).
 * Ease of testing.
 * Easily extended (contribution is welcome).
