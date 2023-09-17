@@ -8,7 +8,7 @@ __all__ = [
     "determine_baking_method",
     "unbake",
 ]
-
+from copy import deepcopy
 from inspect import isawaitable, iscoroutinefunction
 from typing import Any, AsyncContextManager, ContextManager, Optional, TypeVar
 
@@ -104,6 +104,8 @@ class Ingredients:
     Cake internal state.
     """
 
+    # pylint: disable=too-many-instance-attributes
+
     def __init__(
         self,
         recipe: Any,
@@ -133,6 +135,19 @@ class Ingredients:
             self.result = self.recipe
             self.is_baked = True
 
+        self.__name__: Final = getattr(self.recipe, "__name__", None) or self.__call__.__name__
+        self.__code__: Final = getattr(self.recipe, "__code__", None) or self.__call__.__code__
+        self.__defaults__: Final = (
+            getattr(self.recipe, "__defaults__", None) or self.__call__.__defaults__
+        )
+        self.__kwdefaults__: Final = (
+            getattr(self.recipe, "__kwdefaults__", None) or self.__call__.__kwdefaults__
+        )
+        self.__annotations__: Final = (
+            getattr(self.recipe, "__annotations__", None) or self.__call__.__annotations__
+        )
+        self._is_coroutine: Final = getattr(self.recipe, "_is_coroutine", False)
+
     def __repr__(self) -> str:
         """Repr."""
         name: str = self.name or "<anon>"
@@ -145,6 +160,17 @@ class Ingredients:
             *list(self.recipe_args),
             cake_baking_method=self.cake_baking_method,
             **dict(self.recipe_kwargs),
+        )
+        ingr_copy.name = self.name
+        return ingr_copy
+
+    def __deepcopy__(self, memo: Any) -> "Ingredients":
+        """Deep copy all ingredients and technologies."""
+        ingr_copy: Ingredients = Ingredients(
+            self.recipe,
+            *deepcopy(self.recipe_args),
+            cake_baking_method=self.cake_baking_method,
+            **deepcopy(self.recipe_kwargs),
         )
         ingr_copy.name = self.name
         return ingr_copy
