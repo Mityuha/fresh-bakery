@@ -22,7 +22,7 @@ class Bakery:
     __bakery_visitors__: int
     __bakery_items__: Dict[str, Cakeable[Any]]
 
-    async def __aenter__(self) -> "Bakery":
+    async def __aenter__(self: T) -> T:
         """Open up your real bakery."""
         return await type(self).aopen()
 
