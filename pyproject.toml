@@ -65,7 +65,7 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<3.12"
+python = ">=3.8.0,<3.12"
 
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -73,7 +73,7 @@ pydocstringformatter = [
     {version = "*", python = ">=3.8"},
 ]
 isort = "*"
-mypy = "*"
+mypy = "^1.5.1"
 pre-commit = "*"
 pylint = "*"
 pytest = "*"
