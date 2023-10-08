@@ -96,7 +96,7 @@ jinja2 = "^3.0.3"
 # https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html
 [tool.pylint.master]
 jobs = 0
-disable = ["unnecessary-dunder-call"]
+disable = ["unnecessary-dunder-call", "duplicate-code"]
 ignore = ["CVS", "examples/"]
 [tool.pylint.messages_control]
 max-line-length = 120

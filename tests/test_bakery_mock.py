@@ -107,7 +107,6 @@ async def test_complex_bakery_mock1(bakery_mock: BakeryMock) -> None:
     await bakery_mock.patch(Comp)
 
     async with Comp() as my_pc:
-
         assert my_pc.mypc.cpus[0].core_num == 8
         assert Comp.mypc.cpus[0].core_num() == 8
         assert Comp().mypc.cpus[0].core_num == 8
@@ -245,10 +244,10 @@ async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
         """MyBakery."""
 
         value: float = Cake(
-            sum,
+            sum,  # type: ignore
             Cake(
                 Cake(
-                    make_list,
+                    make_list,  # type: ignore
                     [Cake(sum, [1, 2, 3])],  # type: ignore
                 ),
             ),

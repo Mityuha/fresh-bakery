@@ -307,7 +307,7 @@ async def test_closed_bakery() -> None:
         browny: str = Cake("browny")
 
     with pytest.raises(ValueError):
-        _ = MyBakery().browny
+        _ = MyBakery.browny()
 
     async with MyBakery():
         assert MyBakery().browny == "browny"
@@ -338,16 +338,16 @@ async def async_gen() -> AsyncIterator:
         bool(False),
         bytearray([1, 2]),
         bytes(1),
-        classmethod(lambda: 1),
+        classmethod(cast(Callable, lambda: 1)),
         complex(1, 2),
-        dict(a=1),
+        {"a": 1},
         float(1.1),
         frozenset({1, 2, 3}),
         int(2),
         list([1, 2]),
         map(lambda x: x, [1, 2]),
         memoryview(b''),
-        property(lambda: 1),  # type: ignore
+        property(cast(Callable, lambda: 1)),
         range(1, 2),
         set({1, 2}),
         slice(1, 2),
