@@ -143,7 +143,8 @@ deps =
     pytest-trio==0.7.0
     types-dataclasses==0.6.6
 
-    py{36,37}: mypy==1.4.1
+    py36: mypy==0.971
+    py37: mypy==1.4.1
     py{38,39,310,311,312}: mypy==1.5.1
 commands = 
     black --check bakery/ tests/
