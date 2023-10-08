@@ -75,7 +75,7 @@ pydocstringformatter = [
 isort = "*"
 mypy = "^1.5.1"
 pre-commit = "*"
-pylint = "*"
+pylint = "^3.0.1"
 pytest = "*"
 pytest-cov = "*"
 pytest-trio = "*"
@@ -143,11 +143,12 @@ deps =
     pytest-trio==0.7.0
     types-dataclasses==0.6.6
 
-    mypy==1.5.1
+    py{36,37}: mypy==1.4.1
+    py{38,39,310,311,312}: mypy==1.5.1
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/
-    pylint bakery/ tests/  --disable=no-self-use,R0801,cyclic-import,isinstance-second-argument-not-valid-type
+    pylint bakery/ tests/  --disable=no-self-use,R0801,cyclic-import,isinstance-second-argument-not-valid-type,invalid-name
     mypy bakery/ tests/ 
     pytest tests/ -x
 setenv =
