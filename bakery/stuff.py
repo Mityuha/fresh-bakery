@@ -68,6 +68,9 @@ class IngredientsProto(Protocol):
     is_baked: bool
     name: str
 
+    def __call__(self) -> Any:
+        ...
+
 
 class CakeRecipe:
     """Any recipe you want."""
