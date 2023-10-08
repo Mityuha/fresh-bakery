@@ -307,7 +307,7 @@ async def test_closed_bakery() -> None:
         browny: str = Cake("browny")
 
     with pytest.raises(ValueError):
-        _ = MyBakery.browny()
+        _ = MyBakery().browny
 
     async with MyBakery():
         assert MyBakery().browny == "browny"
