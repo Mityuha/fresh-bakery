@@ -15,7 +15,7 @@ else:
     else:
         from async_generator import asynccontextmanager
 
-    @asynccontextmanager  # type: ignore
+    @asynccontextmanager
     async def aclosing(thing: Any) -> Any:
         """Python <3.10."""
         try:

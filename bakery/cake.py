@@ -164,7 +164,7 @@ def Cake(recipe: ContextManager[T]) -> T:
 
 @overload
 def Cake(
-    recipe: Callable[P, T],
+    recipe: Callable[P, Awaitable[T]],
     *recipe_args: P.args,
     **recipe_kwargs: P.kwargs,
 ) -> T:
@@ -173,7 +173,7 @@ def Cake(
 
 @overload
 def Cake(
-    recipe: Callable[P, Awaitable[T]],
+    recipe: Callable[P, T],
     *recipe_args: P.args,
     **recipe_kwargs: P.kwargs,
 ) -> T:

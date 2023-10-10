@@ -34,7 +34,7 @@ async def test_piece_of_cake_as_cake() -> None:
 
         CONST: int = 42
 
-        def __init__(self):
+        def __init__(self) -> None:
             self.acm_baked: bool = False
             self.cm_baked: bool = False
 
@@ -66,7 +66,7 @@ async def test_piece_of_cake_as_cake() -> None:
         """MyBakery."""
 
         poc: POCTester = Cake(POCTester)
-        coro_poc: float = Cake(poc.coro_sum, num1=5, num2=6)  # type: ignore
+        coro_poc: float = Cake(poc.coro_sum, num1=5, num2=6)
         acm_poc: float = Cake(
             Cake(poc.acm_sum, num1=8, num2=9),
         )
@@ -98,7 +98,7 @@ async def test_piece_of_cake_with_hand_made() -> None:
         """My bakery."""
 
         some_class: SomeClass = Cake(SomeClass)
-        check: bool = Cake(  # type: ignore
+        check: bool = Cake(
             wrapper,
             coro=hand_made(
                 Cake(some_class.get_const),  # <<< piece of cake

@@ -1,6 +1,6 @@
 """Test bakery methods."""
 from dataclasses import dataclass
-from typing import Any, Iterator
+from typing import Any, Generator
 from uuid import UUID, uuid4
 
 import pytest
@@ -14,7 +14,7 @@ async def test_bakery_auto_call() -> None:
     class House:
         """House."""
 
-        def __init__(self):
+        def __init__(self) -> None:
             self.inside: bool = False
 
         async def __aenter__(self) -> "House":
@@ -122,9 +122,11 @@ async def test_cake_baking_auto_method_priority() -> None:
     class AwaitvsAsyncCm:
         """Awaitable > async cm."""
 
-        def __await__(self) -> Iterator[str]:
-            return "await"
-            yield  # make a generator
+        def __await__(self) -> Generator[Any, Any, str]:
+            async def coro_wrap() -> str:
+                return "await"
+
+            return coro_wrap().__await__()  # pylint: disable=no-member
 
         async def __aenter__(self) -> None:
             assert False
@@ -162,9 +164,9 @@ async def test_cake_baking_auto_method_priority() -> None:
     class Comparison(Bakery):
         """Comparison."""
 
-        coro_func_sum: float = Cake(coro_func, 1, 2, 3)  # type: ignore
+        coro_func_sum: float = Cake(coro_func, 1, 2, 3)
         coro_sum: float = Cake(coro_func(5, 6, 7))
-        await_vs_asynccm: str = Cake(AwaitvsAsyncCm())  # type: ignore
+        await_vs_asynccm: str = Cake(AwaitvsAsyncCm())
         async_vs_sync: str = Cake(AsyncvsSync())
         synccm_vs_call: str = Cake(SyncCMvsCall())
 
