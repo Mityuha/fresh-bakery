@@ -144,8 +144,8 @@ envlist = py36,py37,py38,py39,py310,py311,py312
 deps =
     black==22.8.0
     isort==5.10.1
-    py36: pylint==2.13.9
-    py{37,38,39,310,311,312}: pylint==3.0.1
+    py{36,37}: pylint==2.13.9
+    py{38,39,310,311,312}: pylint==3.0.1
 
     pytest==7.0.1
     pytest-mock==3.6.1
