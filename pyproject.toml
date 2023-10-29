@@ -48,9 +48,18 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = [
+    "Dependency Injection",
+    "Dependency Injection pattern",
+    "Constructor Injection",
+    "Inversion of Control",
+    "Inversion of Control Container",
+    "IoC",
 ]
 packages = [
     { include = "bakery" },
@@ -65,7 +74,7 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<3.12"
+python = ">=3.6.2,<3.13"
 
 [tool.poetry.dev-dependencies]
 black = "*"
@@ -129,13 +138,14 @@ omit = [
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py36,py37,py38,py39,py310,py311
+envlist = py36,py37,py38,py39,py310,py311,py312
 
 [testenv]
 deps =
     black==22.8.0
     isort==5.10.1
-    pylint==2.13.9
+    py36: pylint==2.13.9
+    py{37,38,39,310,311,312}: pylint==3.0.1
 
     pytest==7.0.1
     pytest-mock==3.6.1
@@ -163,4 +173,5 @@ python =
     3.9: py39
     3.10: py310
     3.11: py311
+    3.12: py312
 """
