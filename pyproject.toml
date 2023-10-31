@@ -66,6 +66,12 @@ packages = [
     { include = "bakery/py.typed" }
 ]
 
+[tool.poetry.urls]
+"Documentation" = "https://fresh-bakery.readthedocs.io/en/latest/"
+"Changelog" = "https://github.com/Mityuha/fresh-bakery/releases"
+"Source" = "https://github.com/Mityuha/fresh-bakery"
+"Tracker" = "https://github.com/Mityuha/fresh-bakery/issues"
+
 [tool.poetry.plugins."pytest11"]
 "bakery_mock" = "bakery.testbakery"
 
