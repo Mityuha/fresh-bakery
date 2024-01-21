@@ -82,15 +82,22 @@ trio_mode = "true"
 [tool.poetry.dependencies]
 python = ">=3.6.2,<3.13"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 black = "*"
 pydocstringformatter = [
     {version = "*", python = ">=3.8"},
 ]
 isort = "*"
-mypy = "^1.5.1"
+mypy = [
+    {version = "^1.5.1", python = ">=3.8"},
+    {version = ">1.0", python = "~3.7"},
+    {version = "0.971", python = "~3.6.2"}
+]
 pre-commit = "*"
-pylint = "^3.0.1"
+pylint = [
+    {version = "2.13.9", python = ">= 3.6.2, < 3.8"},
+    {version = "^3.0.1", python = ">= 3.8"},
+]
 pytest = "*"
 pytest-cov = "*"
 pytest-trio = "*"
@@ -100,6 +107,11 @@ trio = "*"
 types-dataclasses = "*"
 sort-all = "*"
 tox = "*"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
 # documentation
 mkdocs = "^1.3.1"
 mkautodoc = "^0.2.0"
