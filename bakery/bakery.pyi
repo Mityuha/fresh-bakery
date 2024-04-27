@@ -2,7 +2,6 @@ from typing import Any, Dict, Optional, Type, TypeVar
 
 from .stuff import Cakeable
 
-
 T = TypeVar('T', bound='Bakery')
 
 class Bakery:
