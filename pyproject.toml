@@ -90,14 +90,14 @@ pydocstringformatter = [
 ]
 isort = "*"
 mypy = [
-    {version = "^1.5.1", python = ">=3.8"},
+    {version = "^1.10.0", python = ">=3.8"},
     {version = ">1.0", python = "~3.7"},
     {version = "0.971", python = "~3.6.2"}
 ]
 pre-commit = "*"
 pylint = [
     {version = "2.13.9", python = ">= 3.6.2, < 3.8"},
-    {version = "^3.0.1", python = ">= 3.8"},
+    {version = "^3.1.0", python = ">= 3.8"},
 ]
 pytest = "*"
 pytest-cov = "*"
@@ -162,9 +162,9 @@ envlist = py36,py37,py38,py39,py310,py311,py312
 [testenv]
 deps =
     black==22.8.0
-    isort==5.10.1
+    isort==5.12.0
     py{36,37}: pylint==2.13.9
-    py{38,39,310,311,312}: pylint==3.0.1
+    py{38,39,310,311,312}: pylint==3.1.0
 
     pytest==7.0.1
     pytest-mock==3.6.1
@@ -174,7 +174,7 @@ deps =
 
     py36: mypy==0.971
     py37: mypy==1.4.1
-    py{38,39,310,311,312}: mypy==1.8.0
+    py{38,39,310,311,312}: mypy==1.10.0
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/

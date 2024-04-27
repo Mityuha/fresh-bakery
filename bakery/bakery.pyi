@@ -1,6 +1,7 @@
-from typing import Any, Dict, Optional, Type, TypeVar
+from typing import Any, Dict, Type, TypeVar
 
 from .stuff import Cakeable
+
 
 T = TypeVar('T', bound='Bakery')
 
@@ -14,7 +15,5 @@ class Bakery:
     @classmethod
     async def aclose(
         cls,
-        exc_type: Optional[type] = ...,
-        exc_value: Optional[Exception] = ...,
-        traceback: Optional[Any] = ...,
+        *_args: Any,
     ) -> None: ...
