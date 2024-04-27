@@ -1,7 +1,7 @@
+# isort: skip_file
 from typing import Any, Dict, Type, TypeVar
 
 from .stuff import Cakeable
-
 
 T = TypeVar('T', bound='Bakery')
 
