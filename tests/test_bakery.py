@@ -321,8 +321,7 @@ async def test_closed_bakery() -> None:
 
 def gen() -> Iterator:
     """Just stub."""
-    for i in range(3):
-        yield i
+    yield from range(3)
 
 
 async def async_gen() -> AsyncIterator:
