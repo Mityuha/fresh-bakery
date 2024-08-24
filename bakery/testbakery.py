@@ -1,4 +1,5 @@
 """Test bakery."""
+import warnings
 from inspect import Parameter, Signature
 from typing import Any, AsyncIterator, Dict, List, Optional, Type
 
@@ -7,6 +8,7 @@ from pytest_mock import MockerFixture
 
 from . import Bakery as _Bakery
 from . import (
+    Cake,
     Cakeable,
     IngredientsProto,
     bake,
@@ -54,7 +56,7 @@ class BakeryMock:
 
     def __init__(self, mocker: MockerFixture):
         self._mocker_: MockerFixture = mocker
-        self._cake_mocks_: Dict[str, Any] = {}
+        self._cake_mocks_: Dict[str, Cakeable[Any]] = {}
         self._bakery_: Optional[Bakery] = None
         self._children_: List["BakeryMock"] = []
 
@@ -64,28 +66,24 @@ class BakeryMock:
         self._children_.append(mock_copy)
         return mock_copy
 
-    async def _patch_cake(self, *, bakery: Bakery, cake: Cakeable[Any], new_recipe: Any) -> None:
+    async def _patch_cake(
+        self, *, bakery: Bakery, cake: Cakeable[Any], new_recipe: Cakeable[Any]
+    ) -> None:
         """Patch cake recipe."""
         assert is_cake(cake)
+        assert is_cake(new_recipe)
         assert issubclass(bakery, _Bakery)
 
         ingredients: IngredientsProto = cake_ingredients(cake)
-        if is_cake(new_recipe):
-            new_cake: Cakeable[Any] = new_recipe
-            self._mocker_.patch.multiple(
-                ingredients,
-                recipe=cake_ingredients(new_cake).recipe,
-                recipe_args=cake_ingredients(new_cake).recipe_args,
-                recipe_kwargs=cake_ingredients(new_cake).recipe_kwargs,
-                cake_baking_method=cake_baking_method(new_cake),
-                result=await bake(new_cake),
-            )
-        else:
-            self._mocker_.patch.multiple(
-                ingredients,
-                recipe=new_recipe,
-                result=new_recipe,
-            )
+        new_cake: Cakeable[Any] = new_recipe
+        self._mocker_.patch.multiple(
+            ingredients,
+            recipe=cake_ingredients(new_cake).recipe,
+            recipe_args=cake_ingredients(new_cake).recipe_args,
+            recipe_kwargs=cake_ingredients(new_cake).recipe_kwargs,
+            cake_baking_method=cake_baking_method(new_cake),
+            result=await bake(new_cake),
+        )
 
     async def _patch(self, bakery: Bakery) -> None:
         """Start bakery `bakery` patching."""
@@ -143,6 +141,12 @@ class BakeryMock:
         ):
             return super().__setattr__(attr, value)
 
+        if not is_cake(value):
+            warnings.warn(
+                "Direct value assignment to bakery_mock is deprecated and will be removed soon. "
+                "Please, use bakery_mock.attr = Cake(value) notation."
+            )
+            value = Cake(value)
         self._cake_mocks_[attr] = value
         return None
 
@@ -150,8 +154,7 @@ class BakeryMock:
         """Reset mocker and clear piece mocks."""
         await self.reset()
         for cake in self._cake_mocks_.values():
-            if is_cake(cake):
-                await unbake(cake)
+            await unbake(cake)
 
         for child in self._children_:
             await child.stopall()

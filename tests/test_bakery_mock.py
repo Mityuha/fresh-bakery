@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from time import sleep
 from typing import Any, Dict, List
 
-from bakery import Bakery, Cake, is_baked
+from bakery import Bakery, Cake, is_baked, is_cake
 from bakery.testbakery import BakeryMock
 
 
@@ -19,6 +19,7 @@ async def test_bakery_mock1(bakery_mock: BakeryMock) -> None:
         manufacturer: str = Cake("Intel")
 
     bakery_mock.core_num, bakery_mock.manufacturer = 5, "AMD"
+    assert all(is_cake(v) for v in getattr(bakery_mock, "_cake_mocks_").values())
 
     async with MyPC() as my_pc:
         assert my_pc.core_num == 4
@@ -55,6 +56,7 @@ async def test_bakery_patch_before_open(bakery_mock: BakeryMock) -> None:
 
     bakery_mock.core_num = Cake(6)
     bakery_mock.manufacturer = "AMD"
+    assert all(is_cake(v) for v in getattr(bakery_mock, "_cake_mocks_").values())
 
     await bakery_mock.patch(MyPC)
 
@@ -103,6 +105,7 @@ async def test_complex_bakery_mock1(bakery_mock: BakeryMock) -> None:
 
     bakery_mock.core_num = 8
     bakery_mock.manufacturer = "AMD"
+    assert all(is_cake(v) for v in getattr(bakery_mock, "_cake_mocks_").values())
 
     await bakery_mock.patch(Comp)
 
@@ -219,6 +222,7 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
     bakery_mock.sleeper1 = lambda *_args: 100
     bakery_mock.sleeper2 = lambda *_args: 200
     bakery_mock.some_list = [1, 2, 300]
+    assert all(is_cake(v) for v in getattr(bakery_mock, "_cake_mocks_").values())
 
     async with bakery_mock(Comp):
         assert Comp().sleeper1 == 100
@@ -260,7 +264,7 @@ async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
     async with bakery_mock(MyBakery):
         assert MyBakery().value == 10
 
-    bakery_mock.value = lambda *args: sum(*args, 4)  # type: ignore
+    bakery_mock.value = Cake(sum, Cake(make_list, (1, 2, 3, 4)))  # type: ignore
     async with bakery_mock(MyBakery):
         assert MyBakery().value == 10
 
