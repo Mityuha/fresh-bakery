@@ -33,7 +33,7 @@ profile = "black"
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.3.5"
+version = "0.3.6"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"
@@ -174,7 +174,10 @@ deps =
 
     py36: mypy==0.971
     py37: mypy==1.4.1
-    py{38,39,310,311,312}: mypy==1.10.0
+    py{38,39,310,311,312}:
+        mypy==1.10.0
+        pytest>=8.3.2
+
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/
