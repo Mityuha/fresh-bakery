@@ -33,7 +33,7 @@ profile = "black"
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.3.5"
+version = "0.3.6"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"
@@ -166,7 +166,8 @@ deps =
     py{36,37}: pylint==2.13.9
     py{38,39,310,311,312}: pylint==3.1.0
 
-    pytest==7.0.1
+    py{36,37}: pytest==7.0.1
+    py{38,39,310,311,312}: pytest>=8.3.2
     pytest-mock==3.6.1
     typing_extensions==4.1.1
     pytest-trio==0.7.0
@@ -175,6 +176,7 @@ deps =
     py36: mypy==0.971
     py37: mypy==1.4.1
     py{38,39,310,311,312}: mypy==1.10.0
+
 commands = 
     black --check bakery/ tests/
     isort --check bakery tests/
