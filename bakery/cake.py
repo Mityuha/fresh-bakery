@@ -3,8 +3,7 @@
 Book, recipes, etc.
 """
 
-__all__ = ["Cake", "Pastry", "hand_made"]
-
+from __future__ import annotations
 from typing import (
     Any,
     AsyncContextManager,
@@ -32,6 +31,9 @@ from .stuff import (
     is_baked,
     is_cake,
 )
+
+
+__all__ = ["Cake", "Pastry", "Shape", "hand_made"]
 
 
 class Pastry(CakeRecipe):
@@ -196,3 +198,7 @@ def Cake(  # waiting for issue to close
         T,
         Pastry(Ingredients(recipe, *recipe_args, **recipe_kwargs)),
     )
+
+
+def Shape(*, init: bool = True) -> Any:  # pylint: disable=unused-argument
+    return Cake(...)

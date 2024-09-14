@@ -140,7 +140,7 @@ min-public-methods = 0
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html
-python_version = "3.6"
+python_version = "3.8"
 plugins = 'bakery.mypy'
 exclude = ["examples", "bakery/__init__.py", "bakery/mypy.py"]
 warn_unused_configs = true

@@ -7,7 +7,7 @@ __all__ = ["Bakery"]
 
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
-from .baking import bake, unbake
+from .baking import Ingredients, bake, unbake
 from .cake import Cake
 from .stuff import _LOGGER as logger
 from .stuff import Cakeable, is_cake
@@ -21,6 +21,16 @@ class Bakery:
 
     __bakery_visitors__: int
     __bakery_items__: Dict[str, Cakeable[Any]]
+
+    def __init__(self, **kwargs: Any) -> None:
+        cls = type(self)
+        for item_name, item_value in kwargs.items():
+            assert item_name in cls.__bakery_items__
+            ingredients: Any = Ingredients(item_value)
+            if is_cake(item_value):
+                ingredients = item_value._Pastry_ingredients
+
+            cls.__bakery_items__[item_name].__init__(ingredients)  # type: ignore[misc]
 
     async def __aenter__(self: T) -> T:
         """Open up your real bakery."""
