@@ -30,7 +30,9 @@ class Bakery:
             if is_cake(item_value):
                 ingredients = item_value._Pastry_ingredients
 
-            cls.__bakery_items__[item_name].__init__(ingredients)  # type: ignore[misc]
+            old_cake = cls.__bakery_items__[item_name]
+            old_cake.__init__(ingredients)  # type: ignore[misc]
+            old_cake.__set_name__(cls, item_name)
 
     async def __aenter__(self: T) -> T:
         """Open up your real bakery."""
