@@ -87,18 +87,18 @@ class Pastry(CakeRecipe):
             self.result = self.recipe
             self.is_baked = True
 
-        self.__name__: Final = getattr(self.recipe, "__name__", None) or self.__call__.__name__
-        self.__code__: Final = getattr(self.recipe, "__code__", None) or self.__call__.__code__
-        self.__defaults__: Final = (
-            getattr(self.recipe, "__defaults__", None) or self.__call__.__defaults__
-        )
-        self.__kwdefaults__: Final = (
-            getattr(self.recipe, "__kwdefaults__", None) or self.__call__.__kwdefaults__
-        )
-        self.__annotations__: Final = (
-            getattr(self.recipe, "__annotations__", None) or self.__call__.__annotations__
-        )
-        self._is_coroutine: Final = getattr(self.recipe, "_is_coroutine", False)
+        # self.__name__: Final = getattr(self.recipe, "__name__", None) or self.__call__.__name__
+        # self.__code__: Final = getattr(self.recipe, "__code__", None) or self.__call__.__code__
+        # self.__defaults__: Final = (
+        #     getattr(self.recipe, "__defaults__", None) or self.__call__.__defaults__
+        # )
+        # self.__kwdefaults__: Final = (
+        #     getattr(self.recipe, "__kwdefaults__", None) or self.__call__.__kwdefaults__
+        # )
+        # self.__annotations__: Final = (
+        #     getattr(self.recipe, "__annotations__", None) or self.__call__.__annotations__
+        # )
+        # self._is_coroutine: Final = getattr(self.recipe, "_is_coroutine", False)
         self.__name = ""
 
     def __set_name__(self, _: Any, name: str) -> None:
