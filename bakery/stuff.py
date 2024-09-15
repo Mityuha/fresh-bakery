@@ -333,7 +333,7 @@ class DefaultLogger:
         """Log it."""
 
     def __getattr__(self, attr: str) -> Callable[..., Any]:
-        """Check and det default logger attribute."""
+        """Check and get default logger attribute."""
         if attr not in self.FUNC_2_LEVEL:
             msg = f"Logger has no attribute {attr}. Possible values: {list(self.FUNC_2_LEVEL)}"
             raise AttributeError(
