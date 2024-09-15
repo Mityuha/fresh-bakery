@@ -28,7 +28,7 @@ class Bakery:
             assert item_name in cls.__bakery_items__
             ingredients: Any = Ingredients(item_value)
             if is_cake(item_value):
-                ingredients = item_value._Pastry_ingredients
+                ingredients = item_value._Pastry__ingredients
 
             old_cake = cls.__bakery_items__[item_name]
             old_cake.__init__(ingredients)  # type: ignore[misc]
