@@ -1,4 +1,4 @@
-"""Test bested cakes."""
+"""Test nested cakes."""
 
 from __future__ import annotations
 
