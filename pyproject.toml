@@ -78,6 +78,7 @@ mkdocs-material = "^8.2.11"
 jinja2 = "^3.0.3"
 
 [tool.ruff]
+fix = true
 exclude = [
     ".bzr",
     ".direnv",
@@ -129,7 +130,6 @@ ignore = [
     "ISC001"
 ]
 fixable = ["ALL"]
-unfixable = []
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
