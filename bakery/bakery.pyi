@@ -3,8 +3,6 @@ from typing import Any, TypeVar
 
 from .stuff import Cakeable
 
-__all__ = []
-
 T = TypeVar("T", bound=Bakery)  # noqa: PYI001
 
 class Bakery:
