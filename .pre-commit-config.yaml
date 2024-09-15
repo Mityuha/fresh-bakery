@@ -6,8 +6,14 @@ repos:
         stages: [commit]
         language: python
         types_or: [python, pyi]
-        require_serial: true
-        entry: poetry run ruff check --force-exclude
+        entry: poetry run ruff check
+        exclude: examples
+      - id: ruff-format
+        name: ruff-format
+        stages: [commit]
+        language: python
+        types_or: [python, pyi]
+        entry: poetry run ruff format
         exclude: examples
       - id: mypy
         name: mypy
