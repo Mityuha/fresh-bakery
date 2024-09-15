@@ -1,5 +1,5 @@
 [build-system]
-requires = ["poetry_core>=1.1.0a6"]
+requires = ["poetry_core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
@@ -60,10 +60,8 @@ pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-trio = "*"
-autoflake = "*"
 pytest-mock = "*"
 trio = "*"
-types-dataclasses = "*"
 sort-all = "*"
 tox = "*"
 ruff = "*"
@@ -153,7 +151,7 @@ docstring-code-line-length = "dynamic"
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html
-python_version = "3.10"
+python_version = "3.8"
 plugins = 'bakery.mypy'
 exclude = ["examples", "bakery/__init__.py", "bakery/mypy.py"]
 warn_unused_configs = true
