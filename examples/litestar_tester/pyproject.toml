@@ -6,14 +6,14 @@ authors = ["mityuha <mit.makaroff@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-litestar = "^2.0.0-beta.2"
+litestar = ">=2.11"
 uvicorn = "^0.22.0"
-pytest = "^7.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
 isort = "^5.12.0"
 mypy = "^1.4.1"
+pytest = "^7.4.0"
 pytest-mock = "^3.11.1"
 pytest-asyncio = "^0.21.0"
 
