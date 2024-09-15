@@ -181,6 +181,7 @@ deps =
 
 commands =
     ruff check .
+    ruff format --check .
     mypy bakery/ tests/ 
     pytest tests/ -x
 setenv =
