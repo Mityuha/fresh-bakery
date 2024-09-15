@@ -1,5 +1,4 @@
-"""
-Test piece of cake as cake.
+"""Test piece of cake as cake.
 
 https://github.com/Mityuha/fresh-bakery/issues/13.
 """

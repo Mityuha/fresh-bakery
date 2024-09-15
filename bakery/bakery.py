@@ -1,5 +1,4 @@
-"""
-DI Bakery.
+"""DI Bakery.
 
 Opened around the clock.
 """
@@ -29,8 +28,7 @@ class Bakery:
         return await type(self).aopen()
 
     async def __aexit__(self, *_args: object) -> None:
-        """
-        Close up bakery.
+        """Close up bakery.
 
         Unbake all cakes.
         """

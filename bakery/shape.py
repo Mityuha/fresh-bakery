@@ -1,6 +1,5 @@
 # ruff: noqa: ERA001
-"""
-Empty cake shape.
+"""Empty cake shape.
 
 For future purposes (maybe).
 

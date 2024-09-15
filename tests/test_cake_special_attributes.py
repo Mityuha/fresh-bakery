@@ -1,5 +1,4 @@
-"""
-Test cake special attributes.
+"""Test cake special attributes.
 
 For inspect module only.
 """

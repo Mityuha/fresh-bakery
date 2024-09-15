@@ -1,5 +1,4 @@
-"""
-Cake.
+"""Cake.
 
 Book, recipes, etc.
 """
@@ -41,8 +40,7 @@ if TYPE_CHECKING:
 
 
 class Pastry(CakeRecipe):
-    """
-    Pastry is a public cake interface with almost zero name collision.
+    """Pastry is a public cake interface with almost zero name collision.
 
     Your item ingredients and cooking method stored here.
     """
@@ -72,8 +70,7 @@ class Pastry(CakeRecipe):
         return self.__ingredients.__repr__()
 
     def __copy__(self) -> Cakeable[Any]:
-        """
-        Copy itself with all ingredients and technologies.
+        """Copy itself with all ingredients and technologies.
 
         If cake is not baked then such a cake's copy is cake itself.
 
@@ -86,8 +83,7 @@ class Pastry(CakeRecipe):
         return cast(Cakeable[Any], Pastry(ingr_copy))
 
     def __deepcopy__(self, memo: Any) -> Cakeable[Any]:
-        """
-        Deep copy with all ingredients and technologies.
+        """Deep copy with all ingredients and technologies.
 
         If cake is not baked then such a cake's deep copy is cake itself.
         """
@@ -103,8 +99,7 @@ class Pastry(CakeRecipe):
         return self.__ingredients()
 
     def __getattr__(self, piece_name: str) -> PieceOfCake:
-        """
-        Cut a piece of cake.
+        """Cut a piece of cake.
 
         With __CAKE_ATTRIBUTE_ERROR_NAMES__ you can no longer write
         the things like:

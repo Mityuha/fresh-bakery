@@ -1,5 +1,4 @@
-"""
-Bakery mypy plugin.
+"""Bakery mypy plugin.
 
 Make cakeable all bakery items.
 """

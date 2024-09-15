@@ -66,8 +66,7 @@ class PieceOfCake(FictionalPiece):
         return copy_piece_of_cake(self, PieceSubs(mark))
 
     def __call__(self, *_args: Any, **_kwargs: Any) -> Any:
-        """
-        It's time to cut a piece from cake.
+        """It's time to cut a piece from cake.
 
         Get dummy *args and **kwargs to highlight
         `Cake is not baked` errors.

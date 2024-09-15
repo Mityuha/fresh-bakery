@@ -61,8 +61,7 @@ def determine_baking_method(recipe: Any) -> BakingMethod:
 
 
 def check_baking_method(recipe: Any, method: BakingMethod) -> bool:
-    """
-    Check baking method.
+    """Check baking method.
 
     return true if OK.
     """
@@ -92,8 +91,7 @@ async def unbake(
 
 
 class Ingredients:
-    """
-    Cake ingredients.
+    """Cake ingredients.
 
     Cake internal state.
     """

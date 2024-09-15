@@ -141,8 +141,7 @@ async def test_simple_recipe1() -> None:
 
 
 async def test_piece_of_cake() -> None:
-    """
-    Test piece of cake.
+    """Test piece of cake.
 
     Not worry about saving piece of cakes. I.e. test piece of cake copying.
     """

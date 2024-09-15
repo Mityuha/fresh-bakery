@@ -110,8 +110,7 @@ async def test_cake_methods() -> None:
 
 
 async def test_cake_baking_auto_method_priority() -> None:
-    """
-    Test auto baking priority.
+    """Test auto baking priority.
 
     BAKE_FROM_CORO_FUNC > BAKE_FROM_AWAITABLE > BAKE_FROM_ACM > BAKE_FROM_CM >BAKE_FROM_BUILTIN
     > BAKE_FROM_CALL
@@ -198,8 +197,7 @@ async def test_cake_no_bake() -> None:
 
 @pytest.mark.parametrize("hand_made_cake", [True, False])
 async def test_hand_made_any_object(*, hand_made_cake: bool) -> None:
-    """
-    Test hand made any object.
+    """Test hand made any object.
 
     https://github.com/Mityuha/fresh-bakery/issues/26
     """

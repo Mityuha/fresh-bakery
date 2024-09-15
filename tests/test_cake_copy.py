@@ -76,8 +76,7 @@ async def test_copy_cake() -> None:
 
 
 async def test_deepcopy_cake() -> None:
-    """
-    Test recipe deepcopy.
+    """Test recipe deepcopy.
 
     Improve this test as well as Ingredients' __deepcopy__ method.
     """
