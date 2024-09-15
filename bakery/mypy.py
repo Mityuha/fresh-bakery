@@ -1,24 +1,26 @@
-"""Bakery mypy plugin.
+"""
+Bakery mypy plugin.
 
 Make cakeable all bakery items.
 """
 
-from pathlib import Path
-from typing import Callable, Optional, Tuple, Type
+from __future__ import annotations
 
-# pylint: disable=no-name-in-module
-from mypy.options import Options
+from pathlib import Path
+from typing import TYPE_CHECKING, Callable, Final
+
 from mypy.plugin import AttributeContext, Plugin
 from mypy.types import CallableType, Instance
 from mypy.types import Type as MypyType
-from typing_extensions import Final
 
+if TYPE_CHECKING:
+    from mypy.options import Options
 
 BAKERY_FULLNAME: Final[str] = "bakery.bakery.Bakery"
 CAKEABLE_FULLNAME: Final[str] = "bakery.Cakeable"
 
 
-def plugin(_: str) -> Type[Plugin]:
+def plugin(_: str) -> type[Plugin]:
     """Plugin."""
     return BakeryPlugin
 
@@ -32,11 +34,11 @@ class BakeryPlugin(Plugin):
             return
         # some manipulations on config_file
         # some optimizations here
-        self.visible_modules: Final[Tuple[str, ...]] = tuple(
+        self.visible_modules: Final[tuple[str, ...]] = tuple(
             str(path.with_suffix("")).replace("/", ".") for path in Path().rglob("*.py")
         )
 
-    def get_class_attribute_hook(self, _fullname: str) -> Optional[Callable]:
+    def get_class_attribute_hook(self, _fullname: str) -> Callable | None:
         """Get class attribute hook."""
         # fullname including attribute name
         # e.g. test_app.bakery.MyBakery.some_cake
@@ -54,10 +56,10 @@ class BakeryPlugin(Plugin):
         else:
             return ctx.default_attr_type
 
-        if ctx.context.name in ("aopen", "aclose", "__aenter__", "__aexit__"):  # type: ignore
+        if ctx.context.name in ("aopen", "aclose", "__aenter__", "__aexit__"):  # type: ignore[attr-defined]
             return ctx.default_attr_type
 
-        smth_inst: Instance = ctx.api.named_type(CAKEABLE_FULLNAME).copy_modified(  # type: ignore
+        smth_inst: Instance = ctx.api.named_type(CAKEABLE_FULLNAME).copy_modified(  # type: ignore[attr-defined]
             args=(ctx.default_attr_type,),
         )
         return smth_inst

@@ -1,8 +1,14 @@
+"""Test complex bakery mock."""
+
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import TYPE_CHECKING
 
 from bakery import Bakery, Cake, is_baked
-from bakery.testbakery import BakeryMock
+
+if TYPE_CHECKING:
+    from bakery.testbakery import BakeryMock
 
 
 async def test_complex_bakery_mock1(bakery_mock: BakeryMock) -> None:
@@ -12,7 +18,7 @@ async def test_complex_bakery_mock1(bakery_mock: BakeryMock) -> None:
         manufacturer: str
 
     class MyPC:
-        def __init__(self, *cpus: CPU):
+        def __init__(self, *cpus: CPU) -> None:
             self.cpus = cpus
 
     class Comp(Bakery):
@@ -64,8 +70,8 @@ async def test_complex_bakery_mock2(bakery_mock: BakeryMock) -> None:
     @dataclass
     class Settings:
         postgres_dsn: str
-        some_list: List[str]
-        some_dict: Dict[str, str]
+        some_list: list[str]
+        some_dict: dict[str, str]
 
     @dataclass
     class Manager:
@@ -88,8 +94,8 @@ async def test_complex_bakery_mock2(bakery_mock: BakeryMock) -> None:
         )
 
     postgres_dsn_mock: str = "mock"
-    some_list_mock: List[str] = ["mock0", "mock1"]
-    some_dict_mock: Dict[str, str] = {"key": "mock"}
+    some_list_mock: list[str] = ["mock0", "mock1"]
+    some_dict_mock: dict[str, str] = {"key": "mock"}
 
     new_settings = Cake(
         Settings,
@@ -103,5 +109,5 @@ async def test_complex_bakery_mock2(bakery_mock: BakeryMock) -> None:
         assert MyBakery().manager.postgres_dsn == postgres_dsn_mock
         assert MyBakery().manager.item_0 == some_list_mock[0]
         assert MyBakery().manager.key_value == some_dict_mock["key"]
-        assert is_baked(new_settings)  # type: ignore
-        assert MyBakery().settings == new_settings()  # type: ignore
+        assert is_baked(new_settings)  # type: ignore[arg-type]
+        assert MyBakery().settings == new_settings()  # type: ignore[operator]

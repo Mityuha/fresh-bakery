@@ -1,4 +1,5 @@
 """Test cake copy methods."""
+
 from copy import copy, deepcopy
 from dataclasses import dataclass
 
@@ -40,7 +41,6 @@ def test_copy_cake_not_baked_is_cake_itself() -> None:
 
 async def test_copy_cake() -> None:
     """Test new recipe."""
-
     async with MyPC():
         cpu_cake = MyPC.cpu
         cpu_new_cake = copy(MyPC.cpu)
@@ -48,7 +48,7 @@ async def test_copy_cake() -> None:
         assert id(cpu_cake) != id(cpu_new_cake)
         assert cake_name(cpu_cake) == cake_name(cpu_new_cake)
         assert cake_baking_method(cpu_cake) == cake_baking_method(cpu_new_cake)
-        assert True == is_baked(cpu_cake) != is_baked(cpu_new_cake)
+        assert True is is_baked(cpu_cake) != is_baked(cpu_new_cake)
         assert cake_ingredients(cpu_cake).recipe is cake_ingredients(cpu_new_cake).recipe
         assert cake_ingredients(cpu_cake).recipe_args == cake_ingredients(cpu_new_cake).recipe_args
         assert (
@@ -57,7 +57,7 @@ async def test_copy_cake() -> None:
         )
 
         cpu: CPU = cpu_cake()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):
             # Cake copy is not baked yet
             _ = cpu_new_cake.core_num()
 
@@ -76,11 +76,11 @@ async def test_copy_cake() -> None:
 
 
 async def test_deepcopy_cake() -> None:
-    """Test recipe deepcopy.
+    """
+    Test recipe deepcopy.
 
     Improve this test as well as Ingredients' __deepcopy__ method.
     """
-
     async with MyPC():
         cpu_cake = MyPC.cpu
         cpu_new_cake = deepcopy(MyPC.cpu)
@@ -88,12 +88,12 @@ async def test_deepcopy_cake() -> None:
         assert id(cpu_cake) != id(cpu_new_cake)
         assert cake_name(cpu_cake) == cake_name(cpu_new_cake)
         assert cake_baking_method(cpu_cake) == cake_baking_method(cpu_new_cake)
-        assert True == is_baked(cpu_cake) != is_baked(cpu_new_cake)
+        assert True is is_baked(cpu_cake) != is_baked(cpu_new_cake)
         assert cake_ingredients(cpu_cake).recipe is cake_ingredients(cpu_new_cake).recipe
         assert cake_ingredients(cpu_cake).recipe_args == cake_ingredients(cpu_new_cake).recipe_args
 
         cpu: CPU = cpu_cake()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):
             # Cake copy is not baked yet
             _ = cpu_new_cake.core_num()
 

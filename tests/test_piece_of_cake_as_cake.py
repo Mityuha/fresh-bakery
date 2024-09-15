@@ -1,4 +1,5 @@
-"""Test piece of cake as cake.
+"""
+Test piece of cake as cake.
 
 https://github.com/Mityuha/fresh-bakery/issues/13.
 """
@@ -8,6 +9,7 @@ from dataclasses import dataclass
 from typing import Any, AsyncIterator, Iterator
 
 from bakery import Bakery, BakingMethod, Cake, hand_made, unbake
+
 from . import asynccontextmanager
 
 
@@ -120,13 +122,13 @@ async def test_awkward_unbaking() -> None:
         async def __aenter__(self) -> str:
             return "avalue"
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             return None
 
         def __enter__(self) -> str:
             return "value"
 
-        def __exit__(self, *_args: Any) -> None:
+        def __exit__(self, *_args: object) -> None:
             return None
 
     @dataclass

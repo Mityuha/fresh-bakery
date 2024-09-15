@@ -1,7 +1,9 @@
-"""Test cake special attributes.
+"""
+Test cake special attributes.
 
 For inspect module only.
 """
+
 from functools import lru_cache, partial
 from inspect import unwrap
 from typing import Any, Callable, cast
@@ -18,8 +20,7 @@ def test_callable_cake_attributes() -> None:
         param3: float = 0.5,
     ) -> None:
         """Just for test."""
-        print(param1, param2, param3)
-        return None
+        print(param1, param2, param3)  # noqa: T201
 
     class MyBakery(Bakery):
         """Bakery."""
@@ -31,7 +32,7 @@ def test_callable_cake_attributes() -> None:
     assert MyBakery.callable_cake.__defaults__ == some_coro.__defaults__
     assert MyBakery.callable_cake.__kwdefaults__ == some_coro.__kwdefaults__
     assert MyBakery.callable_cake.__annotations__ == some_coro.__annotations__
-    assert MyBakery.callable_cake._is_coroutine is False  # pylint: disable=protected-access
+    assert MyBakery.callable_cake._is_coroutine is False
 
 
 def test_not_callable_cake_attributes() -> None:
@@ -51,7 +52,7 @@ def test_not_callable_cake_attributes() -> None:
     assert (
         MyBakery.const.__annotations__ == cake_ingredients(MyBakery.const).__call__.__annotations__
     )
-    assert MyBakery.const._is_coroutine is False  # pylint: disable=protected-access
+    assert MyBakery.const._is_coroutine is False
 
 
 async def test_cake_partial_func_attribute() -> None:
@@ -71,7 +72,6 @@ async def test_cake_partial_func_attribute() -> None:
         output: Any = value.func if hasattr(value, "func") else value
         while hasattr(output, "func"):
             output = output.func
-            print(output, type(output))
 
         return output
 
@@ -96,8 +96,8 @@ async def test_cake_wrapped_func_attribute() -> None:
     class MyBakery(Bakery):
         """Bakery."""
 
-        id_func1: Callable = Cake(lru_cache(None), id_func)  # type: ignore
-        id_func2: Callable = Cake(lru_cache(None), id_func1)  # type: ignore
+        id_func1: Callable = Cake(lru_cache(None), id_func)
+        id_func2: Callable = Cake(lru_cache(None), id_func1)
 
     assert unwrap(MyBakery.id_func1) is MyBakery.id_func1
 
@@ -110,13 +110,13 @@ async def test_cake_wrapped_func_attribute() -> None:
         assert MyBakery.id_func2()("str") == "str"
         # cache hit
         assert MyBakery.id_func2()("str") == "str"
-        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore
+        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore[attr-defined]
 
         # source function call without cache
         assert unwrap(MyBakery.id_func2())("str") == "str"
 
         # cache hits are still the same
-        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore
+        assert MyBakery.id_func2().cache_info().hits == 1  # type: ignore[attr-defined]
 
 
 async def test_special_attributes_refactoring() -> None:

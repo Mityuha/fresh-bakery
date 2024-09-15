@@ -1,4 +1,7 @@
-"""Empty cake shape.
+# ruff: noqa: ERA001
+"""
+Empty cake shape.
+
 For future purposes (maybe).
 
 Goal: Pass arguments to dependent bakery.

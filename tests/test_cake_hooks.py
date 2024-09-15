@@ -1,4 +1,5 @@
-"""test cake hooks."""
+# ruff: noqa: ERA001
+"""Test cake hooks."""
 
 # from bakery import Bakery, Cake
 #

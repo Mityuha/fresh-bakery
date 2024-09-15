@@ -1,4 +1,5 @@
 """Test bakery methods."""
+
 from dataclasses import dataclass
 from typing import Any, Generator
 from uuid import UUID, uuid4
@@ -20,7 +21,7 @@ async def test_bakery_auto_call() -> None:
         async def __aenter__(self) -> "House":
             return self.__enter__()
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             return self.__exit__()
 
         def __enter__(self) -> "House":
@@ -28,7 +29,7 @@ async def test_bakery_auto_call() -> None:
             self.inside = True
             return self
 
-        def __exit__(self, *_args: Any) -> None:
+        def __exit__(self, *_args: object) -> None:
             assert self.inside
             self.inside = False
 
@@ -55,7 +56,7 @@ async def test_cake_methods() -> None:
     class House:
         """Car."""
 
-        def __init__(self, value: str, avalue: str):
+        def __init__(self, value: str, avalue: str) -> None:
             self.inside: bool = False
             self.ainside: bool = False
             self.value: str = value
@@ -69,7 +70,7 @@ async def test_cake_methods() -> None:
         def __call__(self) -> str:
             return "something"
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             assert self.ainside
             self.ainside = False
 
@@ -78,7 +79,7 @@ async def test_cake_methods() -> None:
             self.inside = True
             return self.value
 
-        def __exit__(self, *_args: Any) -> None:
+        def __exit__(self, *_args: object) -> None:
             assert self.inside
             self.inside = False
 
@@ -109,7 +110,8 @@ async def test_cake_methods() -> None:
 
 
 async def test_cake_baking_auto_method_priority() -> None:
-    """Test auto baking priority.
+    """
+    Test auto baking priority.
 
     BAKE_FROM_CORO_FUNC > BAKE_FROM_AWAITABLE > BAKE_FROM_ACM > BAKE_FROM_CM >BAKE_FROM_BUILTIN
     > BAKE_FROM_CALL
@@ -126,13 +128,13 @@ async def test_cake_baking_auto_method_priority() -> None:
             async def coro_wrap() -> str:
                 return "await"
 
-            return coro_wrap().__await__()  # pylint: disable=no-member
+            return coro_wrap().__await__()
 
         async def __aenter__(self) -> None:
-            assert False
+            raise AssertionError
 
-        async def __aexit__(self, *_args: Any) -> None:
-            assert False
+        async def __aexit__(self, *_args: object) -> None:
+            raise AssertionError
 
     class AsyncvsSync:
         """Async cm > sync cm."""
@@ -140,14 +142,14 @@ async def test_cake_baking_auto_method_priority() -> None:
         async def __aenter__(self) -> str:
             return "aenter"
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             return
 
         def __enter__(self) -> None:
-            assert False
+            raise AssertionError
 
-        def __exit__(self, *_args: Any) -> None:
-            assert False
+        def __exit__(self, *_args: object) -> None:
+            raise AssertionError
 
     class SyncCMvsCall:
         """Sync cm > call."""
@@ -155,11 +157,11 @@ async def test_cake_baking_auto_method_priority() -> None:
         def __enter__(self) -> str:
             return "enter"
 
-        def __exit__(self, *_args: Any) -> None:
+        def __exit__(self, *_args: object) -> None:
             return
 
         def __call__(self) -> None:
-            assert False
+            raise AssertionError
 
     class Comparison(Bakery):
         """Comparison."""
@@ -180,7 +182,6 @@ async def test_cake_baking_auto_method_priority() -> None:
 
 async def test_cake_no_bake() -> None:
     """Test no bake method."""
-
     value: UUID = uuid4()
 
     class MyBakery(Bakery):
@@ -196,8 +197,9 @@ async def test_cake_no_bake() -> None:
 
 
 @pytest.mark.parametrize("hand_made_cake", [True, False])
-async def test_hand_made_any_object(hand_made_cake: bool) -> None:
-    """Test hand made any object.
+async def test_hand_made_any_object(*, hand_made_cake: bool) -> None:
+    """
+    Test hand made any object.
 
     https://github.com/Mityuha/fresh-bakery/issues/26
     """
@@ -205,7 +207,7 @@ async def test_hand_made_any_object(hand_made_cake: bool) -> None:
     class House:
         """Car."""
 
-        def __init__(self, value: str, avalue: str):
+        def __init__(self, value: str, avalue: str) -> None:
             self.inside: bool = False
             self.ainside: bool = False
             self.value: str = value
@@ -219,7 +221,7 @@ async def test_hand_made_any_object(hand_made_cake: bool) -> None:
         def __call__(self) -> str:
             return "something"
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             assert self.ainside
             self.ainside = False
 
@@ -228,7 +230,7 @@ async def test_hand_made_any_object(hand_made_cake: bool) -> None:
             self.inside = True
             return self.value
 
-        def __exit__(self, *_args: Any) -> None:
+        def __exit__(self, *_args: object) -> None:
             assert self.inside
             self.inside = False
 

@@ -1,12 +1,19 @@
 """Test cakes baking."""
 
+from __future__ import annotations
+
 from contextlib import contextmanager
-from typing import Any, AsyncIterator, Iterator, List, Set
+from typing import TYPE_CHECKING, Any, AsyncIterator, ClassVar, Iterator
 
 import pytest
+from typing_extensions import Self
 
 from bakery import Bakery, Cake
+
 from . import asynccontextmanager
+
+if TYPE_CHECKING:
+    from types import TracebackType
 
 
 @pytest.mark.parametrize("car_limit", range(5))
@@ -16,10 +23,10 @@ async def test_callable_cake(car_limit: int) -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
 
-    def garage_review(limit: Any = None) -> List[Car]:
+    def garage_review(limit: Any = None) -> list[Car]:
         """My garage review."""
         return [Car("BMW"), Car("Mercedes"), Car("2107"), Car("2109")][:limit]
 
@@ -28,7 +35,7 @@ async def test_callable_cake(car_limit: int) -> None:
 
         brand: str = Cake("BMW")
         car: Car = Cake(Car, brand)
-        car_list: List[Car] = Cake(garage_review, car_limit)
+        car_list: list[Car] = Cake(garage_review, car_limit)
 
     async with MyCar() as car:
         assert car.car.brand == "BMW"
@@ -43,7 +50,7 @@ async def test_context_cake() -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
             self.is_turned_on: bool = False
 
@@ -58,11 +65,9 @@ async def test_context_cake() -> None:
     @contextmanager
     def open_garage(brand: str) -> Iterator[Car]:
         """Opens garage with car turned on."""
-
         car = Car(brand)
         car.turn_on()
         yield car
-        print("---> turning off")
         car.turn_off()
 
     class ReadyCar(Bakery):
@@ -85,7 +90,7 @@ async def test_async_context_cake() -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
             self.is_turned_on: bool = False
 
@@ -100,7 +105,6 @@ async def test_async_context_cake() -> None:
     @asynccontextmanager
     async def open_garage(brand: str) -> AsyncIterator[Car]:
         """Opens garage with car turned on."""
-
         car = Car(brand)
         await car.turn_on()
         yield car
@@ -127,24 +131,35 @@ async def test_all_cakes_unbaked(broken_index: int) -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
             self.is_turned_on: bool = False
 
-        def __enter__(self) -> "Car":
+        def __enter__(self) -> Self:
             """Turn engine on."""
             self.is_turned_on = True
             return self
 
-        def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
             """Turn engine off."""
             self.is_turned_on = False
 
     class BrokenCar(Car):
         """Broken sensor car."""
 
-        def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
-            raise ValueError("Bad sensor value.")
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
+            msg = "Bad sensor value."
+            raise ValueError(msg)
 
     class Garage(Bakery):
         """Garage."""
@@ -153,7 +168,7 @@ async def test_all_cakes_unbaked(broken_index: int) -> None:
         car2: Car = Cake((BrokenCar if broken_index == 1 else Car)("BMW"))
         car3: Car = Cake((BrokenCar if broken_index == 2 else Car)("VW"))
 
-    cars: List[Car] = []
+    cars: list[Car] = []
     try:
         async with Garage() as garage:
             assert garage.car1.is_turned_on
@@ -163,7 +178,7 @@ async def test_all_cakes_unbaked(broken_index: int) -> None:
     except ValueError:
         ...
     else:
-        assert False
+        raise AssertionError
 
     is_broken: dict = {index: index == broken_index for index in range(3)}
 
@@ -178,24 +193,35 @@ async def test_all_cakes_unbaked_async(broken_index: int) -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
             self.is_turned_on: bool = False
 
-        async def __aenter__(self) -> "Car":
+        async def __aenter__(self) -> Self:
             """Turn engine on."""
             self.is_turned_on = True
             return self
 
-        async def __aexit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
             """Turn engine off."""
             self.is_turned_on = False
 
     class BrokenCar(Car):
         """Broken sensor car."""
 
-        async def __aexit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
-            raise ValueError("Bad sensor value.")
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
+            msg = "Bad sensor value."
+            raise ValueError(msg)
 
     class Garage(Bakery):
         """Garage."""
@@ -204,7 +230,7 @@ async def test_all_cakes_unbaked_async(broken_index: int) -> None:
         car2: Car = Cake((BrokenCar if broken_index == 1 else Car)("BMW"))
         car3: Car = Cake((BrokenCar if broken_index == 2 else Car)("VW"))
 
-    cars: List[Car] = []
+    cars: list[Car] = []
     try:
         async with Garage() as garage:
             assert garage.car1.is_turned_on
@@ -214,7 +240,7 @@ async def test_all_cakes_unbaked_async(broken_index: int) -> None:
     except ValueError:
         ...
     else:
-        assert False
+        raise AssertionError
 
     is_broken: dict = {index: index == broken_index for index in range(3)}
 
@@ -225,23 +251,27 @@ async def test_all_cakes_unbaked_async(broken_index: int) -> None:
 @pytest.mark.parametrize("broken_index", range(3))
 async def test_all_cakes_unbaked_on_startup(broken_index: int) -> None:
     """Test on startup exception."""
-
-    cars_turned_on: Set[str] = set()
+    cars_turned_on: set[str] = set()
 
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
             self.is_turned_on: bool = False
 
-        async def __aenter__(self) -> "Car":
+        async def __aenter__(self) -> Self:
             """Turn engine on."""
             self.is_turned_on = True
             cars_turned_on.add(self.brand)
             return self
 
-        async def __aexit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            traceback: TracebackType | None,
+        ) -> None:
             """Turn engine off."""
             cars_turned_on.discard(self.brand)
             self.is_turned_on = False
@@ -249,9 +279,9 @@ async def test_all_cakes_unbaked_on_startup(broken_index: int) -> None:
     class Garage(Bakery):
         """Garage."""
 
-        car1: Car = Cake(Car) if broken_index == 0 else Cake(Car, "VAZ")  # type: ignore
-        car2: Car = Cake(Car) if broken_index == 1 else Cake(Car, "BMW")  # type: ignore
-        car3: Car = Cake(Car) if broken_index == 2 else Cake(Car, "VAZ")  # type: ignore
+        car1: Car = Cake(Car) if broken_index == 0 else Cake(Car, "VAZ")  # type: ignore[assignment]
+        car2: Car = Cake(Car) if broken_index == 1 else Cake(Car, "BMW")  # type: ignore[assignment]
+        car3: Car = Cake(Car) if broken_index == 2 else Cake(Car, "VAZ")  # type: ignore[assignment]
 
     try:
         async with Garage():
@@ -259,7 +289,7 @@ async def test_all_cakes_unbaked_on_startup(broken_index: int) -> None:
     except TypeError:
         ...
     else:
-        assert False
+        raise AssertionError
 
     assert not cars_turned_on
 
@@ -270,14 +300,14 @@ async def test_cakes_from_bakery_are_equal() -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
 
     class Garage:
         """Garage."""
 
-        def __init__(self, cars: List[Car]):
-            self.cars: List[Car] = cars
+        def __init__(self, cars: list[Car]) -> None:
+            self.cars: list[Car] = cars
 
     class House(Bakery):
         """My house."""
@@ -288,7 +318,6 @@ async def test_cakes_from_bakery_are_equal() -> None:
         garage: Garage = Cake(Garage, [car1, car2, car3])
 
     async with House() as house:
-        print([car.brand for car in house.garage.cars])
         assert [car.brand for car in house.garage.cars] == [
             car.brand for car in (house.car1, house.car2, house.car3)
         ]
@@ -303,7 +332,7 @@ async def test_complex_bakery() -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand: str = brand
 
         def __repr__(self) -> str:
@@ -312,20 +341,20 @@ async def test_complex_bakery() -> None:
     class House(Bakery):
         """My house."""
 
-        garage1: list = [
+        garage1: ClassVar[list] = [
             Cake(Car, "VAZ"),
             Cake(Car, "BMW"),
             Cake(Car, "VW"),
         ]
-        garage2: dict = {
+        garage2: ClassVar[dict] = {
             "garage1": garage1,
             "garage22": {
                 "garage": [
                     Cake(Car("Lambo")),
-                ]
+                ],
             },
         }
-        floor1: dict = {
+        floor1: ClassVar[dict] = {
             "garage1": garage1,
             "garage2": garage2,
             "near": [Cake(Car, "LADA")],

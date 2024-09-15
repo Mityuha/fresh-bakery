@@ -1,5 +1,7 @@
 """Piece of any cake."""
 
+from __future__ import annotations
+
 __all__ = [
     "PieceAttr",
     "PieceOfCake",
@@ -7,9 +9,7 @@ __all__ = [
     "PieceType",
 ]
 
-from typing import Any, List
-
-from typing_extensions import Final
+from typing import Any, Final
 
 from .stuff import Cakeable, FictionalPiece, is_cake
 
@@ -17,7 +17,7 @@ from .stuff import Cakeable, FictionalPiece, is_cake
 class PieceType:
     """Piece type."""
 
-    def __init__(self, mark: Any):
+    def __init__(self, mark: Any) -> None:
         self.mark: Any = mark
 
 
@@ -29,7 +29,7 @@ class PieceSubs(PieceType):
     """Piece subscription."""
 
 
-def copy_piece_of_cake(to_copy: "PieceOfCake", mark: PieceType) -> "PieceOfCake":
+def copy_piece_of_cake(to_copy: PieceOfCake, mark: PieceType) -> PieceOfCake:
     """Copy piece_of_cake with mark."""
     piece_copy: PieceOfCake = PieceOfCake(to_copy.cake)
     piece_copy.pieces.extend([*to_copy.pieces, mark])
@@ -39,9 +39,9 @@ def copy_piece_of_cake(to_copy: "PieceOfCake", mark: PieceType) -> "PieceOfCake"
 class PieceOfCake(FictionalPiece):
     """Any piece of your any cake."""
 
-    def __init__(self, cake: Cakeable[Any]):
+    def __init__(self, cake: Cakeable[Any]) -> None:
         self.cake: Final[Cakeable[Any]] = cake
-        self.pieces: Final[List[PieceType]] = []
+        self.pieces: Final[list[PieceType]] = []
 
     def __repr__(self) -> str:
         res: str = str(self.cake)
@@ -54,29 +54,34 @@ class PieceOfCake(FictionalPiece):
         return res
 
     def __iter__(self) -> None:
-        raise ValueError("Piece of cake is not iterable")
+        msg = "Piece of cake is not iterable"
+        raise ValueError(msg)
 
-    def __getattr__(self, mark: Any) -> "PieceOfCake":
+    def __getattr__(self, mark: Any) -> PieceOfCake:
         """Remember all marks were done."""
         return copy_piece_of_cake(self, PieceAttr(mark))
 
-    def __getitem__(self, mark: Any) -> "PieceOfCake":
+    def __getitem__(self, mark: Any) -> PieceOfCake:
         """Remember all subscriptions."""
         return copy_piece_of_cake(self, PieceSubs(mark))
 
     def __call__(self, *_args: Any, **_kwargs: Any) -> Any:
-        """It's time to cut a piece from cake.
+        """
+        It's time to cut a piece from cake.
+
         Get dummy *args and **kwargs to highlight
         `Cake is not baked` errors.
+
         Example:
+        -------
         ```code
             database: Cake
             await database.write_values([1,2,3,4,5], table="some_table")
             # Without dummy args some strange error occured:
             # `PieceOfCake.__call__() takes 1 positional argument but ... were given`.
         ```
-        """
 
+        """
         cake: Cakeable[Any] = self.cake
         if is_cake(cake):
             cake = cake()
@@ -89,9 +94,10 @@ class PieceOfCake(FictionalPiece):
             if isinstance(piece, PieceAttr):
                 cake = getattr(cake, mark)
             elif isinstance(piece, PieceSubs):
-                cake = cake[mark]  # type: ignore
+                cake = cake[mark]  # type: ignore[assignment]
             else:
-                raise ValueError(f"Unknown piece '{piece}' of cake '{self.cake}'")
+                msg = f"Unknown piece '{piece}' of cake '{self.cake}'"
+                raise TypeError(msg)
 
         if is_cake(cake):
             cake = cake()
