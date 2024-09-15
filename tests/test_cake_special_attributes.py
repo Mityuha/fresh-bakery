@@ -9,6 +9,48 @@ from typing import Any, Callable, cast
 from bakery import Bakery, Cake, cake_ingredients
 
 
+async def test_cake_object_attributes_collision() -> None:
+    class MyClass:
+        def __init__(
+            self,
+            name: str,
+            code: str,
+            defaults: dict,
+            kwdefaults: dict,
+            annotations: dict,
+        ) -> None:
+            self.__name__ = name
+            self.__code__ = code
+            self.__defaults__ = defaults
+            self.__kwdefaults__ = kwdefaults
+            self.__annotations__ = annotations
+
+    name: str = "asdasd"
+    code: str = "some code"
+    defaults: dict = {"a": "b"}
+    kwdefaults: dict = {"c": "d"}
+    annotations: dict = {"e": "f"}
+
+    class MyBakery(Bakery):
+        """Bakery."""
+
+        adapter = Cake(
+            MyClass,
+            name=name,
+            code=code,
+            defaults=defaults,
+            kwdefaults=kwdefaults,
+            annotations=annotations,
+        )
+
+    async with MyBakery():
+        assert MyBakery.adapter().__name__ == name
+        assert MyBakery.adapter().__code__ == code
+        assert MyBakery.adapter().__defaults__ == defaults
+        assert MyBakery.adapter().__kwdefaults__ == kwdefaults
+        assert MyBakery.adapter().__annotations__ == annotations
+
+
 def test_callable_cake_attributes() -> None:
     """Test callable cake attributes."""
 

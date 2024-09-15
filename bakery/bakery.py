@@ -7,7 +7,7 @@ __all__ = ["Bakery"]
 
 from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
-from .baking import Ingredients, bake, unbake
+from .baking import BakingMethod, bake, unbake
 from .cake import Cake
 from .stuff import _LOGGER as logger
 from .stuff import Cakeable, is_cake
@@ -26,12 +26,17 @@ class Bakery:
         cls = type(self)
         for item_name, item_value in kwargs.items():
             assert item_name in cls.__bakery_items__
-            ingredients: Any = Ingredients(item_value)
+            values: dict = {"recipe": item_value, "cake_baking_method": BakingMethod.BAKE_NO_BAKE}
+            recipe_args: tuple = ()
+            recipe_kwargs: dict = {}
             if is_cake(item_value):
-                ingredients = item_value._Pastry__ingredients
+                values["recipe"] = item_value.recipe
+                values["cake_baking_method"] = BakingMethod.BAKE_AUTO
+                recipe_args = item_value.recipe_args
+                recipe_kwargs = item_value.recipe_kwargs
 
             old_cake = cls.__bakery_items__[item_name]
-            old_cake.__init__(ingredients)  # type: ignore[misc]
+            old_cake.__init__(*recipe_args, **recipe_kwargs, **values)  # type: ignore[misc]
             old_cake.__set_name__(cls, item_name)
 
     async def __aenter__(self: T) -> T:
