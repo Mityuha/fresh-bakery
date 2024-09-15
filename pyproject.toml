@@ -54,7 +54,7 @@ python = ">=3.8,<3.13"
 
 [tool.poetry.group.dev.dependencies]
 mypy = [
-    {version = "^1.10.0", python = ">=3.8"},
+    {version = "^1.11.0", python = ">=3.8"},
 ]
 pre-commit = "*"
 pytest = "*"
@@ -173,15 +173,17 @@ envlist = py38,py39,py310,py311,py312
 
 [testenv]
 deps =
-    py{38,39,310,311,312}: pytest>=8.3.2
+    py{38,39,310,311,312}: pytest>=8.3.3
     pytest-mock==3.6.1
     typing_extensions==4.1.1
     pytest-trio==0.7.0
     types-dataclasses==0.6.6
 
-    py{38,39,310,311,312}: mypy==1.10.0
+    py{38,39,310,311,312}: mypy==1.11.2
+    ruff==0.6.5
 
 commands =
+    ruff check .
     mypy bakery/ tests/ 
     pytest tests/ -x
 setenv =
