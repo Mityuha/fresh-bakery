@@ -79,7 +79,6 @@ class PieceOfCake(FictionalPiece):
             # Without dummy args some strange error occured:
             # `PieceOfCake.__call__() takes 1 positional argument but ... were given`.
         ```
-
         """
         cake: Cakeable[Any] = self.cake
         if is_cake(cake):
