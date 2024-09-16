@@ -78,7 +78,6 @@ mkdocs-material = "^8.2.11"
 jinja2 = "^3.0.3"
 
 [tool.ruff]
-fix = true
 exclude = [
     ".bzr",
     ".direnv",
@@ -111,6 +110,9 @@ exclude = [
     "site-packages",
     "venv",
 ]
+fix = true
+unsafe-fixes = true
+show-fixes = true
 line-length = 99
 indent-width = 4
 target-version = "py38"
@@ -137,7 +139,7 @@ quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-docstring-code-format = false
+docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
 [tool.ruff.lint.per-file-ignores]
