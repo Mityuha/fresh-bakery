@@ -1,5 +1,7 @@
 """Baking stuff."""
 
+from __future__ import annotations
+
 __all__ = [
     "BUILTIN_TYPES",
     "BakeryLogger",
@@ -21,26 +23,21 @@ __all__ = [
 
 import types
 from copy import copy
-from datetime import datetime
 from enum import IntEnum, auto
 from functools import partial
 from inspect import Signature
 from typing import (
     Any,
     Callable,
-    Dict,
+    Final,
     Iterable,
     Iterator,
     Mapping,
-    Optional,
-    Tuple,
-    Type,
     TypeVar,
-    Union,
     cast,
 )
 
-from typing_extensions import Final, Protocol, TypeGuard
+from typing_extensions import Protocol, TypeGuard
 
 import bakery
 
@@ -68,8 +65,7 @@ class IngredientsProto(Protocol):
     is_baked: bool
     name: str
 
-    def __call__(self) -> Any:
-        ...
+    def __call__(self) -> Any: ...
 
 
 class CakeRecipe:
@@ -100,10 +96,10 @@ T_co = TypeVar("T_co", covariant=True)
 class PieceProto(Protocol):
     """Piece of cake protocol."""
 
-    def __getattr__(self, mark: Any) -> "PieceProto":
+    def __getattr__(self, mark: Any) -> PieceProto:
         """Getattr."""
 
-    def __getitem__(self, mark: Any) -> "PieceProto":
+    def __getitem__(self, mark: Any) -> PieceProto:
         """Subscription."""
 
     def __call__(self) -> Any:
@@ -119,7 +115,7 @@ class Cakeable(Protocol[T_co]):
     def __repr__(self) -> str:
         """Repr."""
 
-    def __copy__(self) -> "Cakeable[T_co]":
+    def __copy__(self) -> Cakeable[T_co]:
         """Copy cake."""
 
     def __call__(self) -> T_co:
@@ -136,16 +132,16 @@ class Cakeable(Protocol[T_co]):
 
     async def __aexit__(
         self,
-        exc_type: Optional[type],
-        exc_value: Optional[Exception],
-        traceback: Optional[Any],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: types.TracebackType | None,
     ) -> None:
         """Unbake cakeable."""
 
 
 def is_iterable(
     value: Any,
-    ignore_types: Tuple[Type[Any], ...] = (
+    ignore_types: tuple[type[Any], ...] = (
         str,
         bytes,
         memoryview,
@@ -185,8 +181,9 @@ def is_cake_or_piece(value: Any) -> bool:
 def cake_ingredients(cake: Cakeable[Any]) -> IngredientsProto:
     """Cake ingredients."""
     if not is_cake(cake):
-        raise ValueError(f"Only cakes are baking in the bakery, not {cake}")
-    return cast(IngredientsProto, getattr(cake, "_Pastry__ingredients"))
+        msg = f"Only cakes are baking in the bakery, not {cake}"
+        raise ValueError(msg)
+    return cast(IngredientsProto, cake._Pastry__ingredients)
 
 
 def cake_name(cake: Cakeable[Any]) -> str:
@@ -202,7 +199,8 @@ def is_baked(cake: Cakeable[Any]) -> bool:
 def assert_baked(cake: Cakeable[Any]) -> None:
     """Check if recipe is baked."""
     if not is_baked(cake):
-        raise ValueError(f"{cake} is not baked. Just bake it!")
+        msg = f"{cake} is not baked. Just bake it!"
+        raise ValueError(msg)
 
 
 def cake_baking_method(cake: Cakeable[Any]) -> IntEnum:
@@ -211,8 +209,8 @@ def cake_baking_method(cake: Cakeable[Any]) -> IntEnum:
 
 
 def flatten(
-    items: Union[Iterable[Any], Mapping[Any, Any]],
-    ignore_types: Tuple[Type[Any], ...] = (
+    items: Iterable[Any] | Mapping[Any, Any],
+    ignore_types: tuple[type[Any], ...] = (
         str,
         bytes,
         memoryview,
@@ -236,7 +234,6 @@ def flatten(
 
 def replace_cakes(obj: Any) -> Any:
     """Replace all objects."""
-
     res: Any
 
     if is_mapping(obj):
@@ -258,7 +255,7 @@ def replace_cakes(obj: Any) -> Any:
     return res
 
 
-BUILTIN_TYPES: Final[Tuple[Any, ...]] = (
+BUILTIN_TYPES: Final[tuple[Any, ...]] = (
     bool,
     bytearray,
     bytes,
@@ -324,7 +321,7 @@ class DummyLogger:
 class DefaultLogger:
     """Just instead of print function."""
 
-    FUNC_2_LEVEL: Final[Dict[str, str]] = {
+    FUNC_2_LEVEL: Final[dict[str, str]] = {
         "debug": "DEBUG",
         "info": "INFO ",
         "warning": "WARN ",
@@ -334,14 +331,13 @@ class DefaultLogger:
     @staticmethod
     def _log(level: str, message: str) -> None:
         """Log it."""
-        print(
-            f"{datetime.now().isoformat(sep=' ', timespec='milliseconds')} | {level} | {message}"
-        )
 
     def __getattr__(self, attr: str) -> Callable[..., Any]:
+        """Check and get default logger attribute."""
         if attr not in self.FUNC_2_LEVEL:
+            msg = f"Logger has no attribute {attr}. Possible values: {list(self.FUNC_2_LEVEL)}"
             raise AttributeError(
-                f"Logger has no attribute {attr}. Possible values: {list(self.FUNC_2_LEVEL)}"
+                msg,
             )
 
         return partial(self._log, self.FUNC_2_LEVEL[attr])

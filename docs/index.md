@@ -6,7 +6,7 @@ It doesn't add up how you open and close your bakery: just make it asynchronousl
 
 Fresh Bakery is suitable for integrating against any async Web framework, such as [Starlette][starlette], [aiohttp][aiohttp], [FastAPI][fastapi], [Litestar][litestar] and so forth.
 
-**Requirements**: Python 3.6+
+**Requirements**: Python 3.8+
 
 ---
 

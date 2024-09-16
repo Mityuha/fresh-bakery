@@ -1,39 +1,10 @@
 [build-system]
-requires = ["poetry_core>=1.1.0a6"]
+requires = ["poetry_core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-line-length = 99
-target-version = ["py310"]
-include = '\.pyi?$'
-skip-string-normalization = true
-exclude = '''
-(
-  /(
-    | \.git
-    | \.mypy_cache
-  )/
-)
-'''
-
-[tool.isort]
-line_length = 99
-sections = ['FUTURE', 'STDLIB', 'THIRDPARTY', 'FIRSTPARTY', 'LOCALFOLDER']
-no_lines_before = ['STDLIB', 'LOCALFOLDER']
-known_third_party = [
-    'pytest',
-]
-known_local_folder = []
-multi_line_output = 3
-lines_after_imports = 2
-include_trailing_comma = true
-use_parentheses = true
-profile = "black"
-
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.3.6"
+version = "0.4.0"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"
@@ -43,8 +14,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -81,33 +50,21 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<3.13"
+python = ">=3.8,<3.13"
 
 [tool.poetry.group.dev.dependencies]
-black = "*"
-pydocstringformatter = [
-    {version = "*", python = ">=3.8"},
-]
-isort = "*"
 mypy = [
-    {version = "^1.10.0", python = ">=3.8"},
-    {version = ">1.0", python = "~3.7"},
-    {version = "0.971", python = "~3.6.2"}
+    {version = "^1.11.0", python = ">=3.8"},
 ]
 pre-commit = "*"
-pylint = [
-    {version = "2.13.9", python = ">= 3.6.2, < 3.8"},
-    {version = "^3.1.0", python = ">= 3.8"},
-]
 pytest = "*"
 pytest-cov = "*"
 pytest-trio = "*"
-autoflake = "*"
 pytest-mock = "*"
 trio = "*"
-types-dataclasses = "*"
 sort-all = "*"
 tox = "*"
+ruff = "*"
 
 [tool.poetry.group.docs]
 optional = true
@@ -120,33 +77,89 @@ pymdown-extensions = "^9.1"
 mkdocs-material = "^8.2.11"
 jinja2 = "^3.0.3"
 
-[tool.pylint]
-# https://pylint.pycqa.org/en/latest/user_guide/configuration/all-options.html
-[tool.pylint.master]
-jobs = 0
-disable = ["unnecessary-dunder-call", "duplicate-code", "missing-module-docstring", "missing-class-docstring", "missing-function-docstring"]
-ignore = ["CVS", "examples/"]
-[tool.pylint.messages_control]
-max-line-length = 120
-[tool.pylint.classes]
-exclude-protected = ['_asdict', '_fields', '_replace', '_source', '_make', "_name"]
-valid-classmethod-first-arg = "cls"
-[tool.pylint.design]
-max-branches = 15
-max-returns = 8
-max-statements = 50
-min-public-methods = 0
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".github",
+    ".hg",
+    ".idea",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "docs",
+    "node_modules",
+    "examples",
+    "site-packages",
+    "venv",
+]
+fix = true
+unsafe-fixes = true
+show-fixes = true
+line-length = 99
+indent-width = 4
+target-version = "py38"
 
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D401",
+    "ANN401",
+    "D105",
+    "SLF001",
+    "D102",
+    "D107",
+    "D213",
+    "D203",
+    "COM812",
+    "ISC001",
+    "D413"
+]
+fixable = ["ALL"]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",
+    "D103",
+    "D101",
+    "C901",
+    "PLR2004",
+]
 
 [tool.mypy]
 # https://mypy.readthedocs.io/en/stable/config_file.html
-python_version = "3.6"
+python_version = "3.8"
 plugins = 'bakery.mypy'
 exclude = ["examples", "bakery/__init__.py", "bakery/mypy.py"]
 warn_unused_configs = true
 ignore_missing_imports = true
 disallow_incomplete_defs = true
-
 
 [tool.coverage]
 [tool.coverage.run]
@@ -157,30 +170,21 @@ omit = [
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py36,py37,py38,py39,py310,py311,py312
+envlist = py38,py39,py310,py311,py312
 
 [testenv]
 deps =
-    black==22.8.0
-    isort==5.10.1
-    py{36,37}: pylint==2.13.9
-    py{38,39,310,311,312}: pylint==3.1.0
+    pytest>=8.3.3
+    pytest-mock==3.14.0
+    typing_extensions==4.12.2
+    pytest-trio==0.8.0
 
-    py{36,37}: pytest==7.0.1
-    py{38,39,310,311,312}: pytest>=8.3.2
-    pytest-mock==3.6.1
-    typing_extensions==4.1.1
-    pytest-trio==0.7.0
-    types-dataclasses==0.6.6
+    mypy==1.11.2
+    ruff==0.6.5
 
-    py36: mypy==0.971
-    py37: mypy==1.4.1
-    py{38,39,310,311,312}: mypy==1.10.0
-
-commands = 
-    black --check bakery/ tests/
-    isort --check bakery tests/
-    pylint bakery/ tests/  --disable=no-self-use,R0801,cyclic-import,isinstance-second-argument-not-valid-type,invalid-name
+commands =
+    ruff check .
+    ruff format --check .
     mypy bakery/ tests/ 
     pytest tests/ -x
 setenv =
@@ -188,8 +192,6 @@ setenv =
 
 [gh-actions]
 python =
-    3.6: py36
-    3.7: py37
     3.8: py38
     3.9: py39
     3.10: py310

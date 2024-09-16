@@ -1,3 +1,5 @@
+"""Test docs examples."""
+
 from dataclasses import dataclass
 
 from bakery import Bakery, BakingMethod, Cake, hand_made

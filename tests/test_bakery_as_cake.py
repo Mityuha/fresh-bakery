@@ -1,4 +1,5 @@
 """Test bakery as cake."""
+
 from dataclasses import dataclass
 
 from bakery import Bakery, Cake

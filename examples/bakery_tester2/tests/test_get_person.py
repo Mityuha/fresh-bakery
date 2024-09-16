@@ -33,7 +33,6 @@ async def test_get_person_1(
         "id": 2,
     }
 
-    # pylint: disable=protected-access
     bakery_mock._connection = lambda *_args, **_kwargs: AsyncMock(
         **{"fetch_one.return_value": person}
     )
@@ -52,7 +51,6 @@ async def test_get_person_2(
 ):
     """Test person 2."""
 
-    # pylint: disable=protected-access
     bakery_mock._connection = lambda *_args, **_kwargs: AsyncMock(
         **{"fetch_one.return_value": None}
     )

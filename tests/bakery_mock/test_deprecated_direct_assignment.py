@@ -1,3 +1,5 @@
+"""Test deprecated direct assignment."""
+
 from time import sleep
 
 from bakery import Bakery, Cake, is_cake
@@ -18,7 +20,7 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
         sleeper1: float = Cake(sleeper, 100)
         sleeper2: float = Cake(sleeper, 200)
         some_list: list = Cake([1, 2, Cake(sleeper, 300)])
-        total: float = Cake(sum, (sleeper1, sleeper2, some_list[2]))  # type: ignore
+        total: float = Cake(sum, (sleeper1, sleeper2, some_list[2]))
 
     class Comp2(Bakery):
         """Comp2."""
@@ -28,7 +30,7 @@ async def test_bakery_mock_replace_recipe(bakery_mock: BakeryMock) -> None:
     bakery_mock.sleeper1 = lambda *_args: 100
     bakery_mock.sleeper2 = lambda *_args: 200
     bakery_mock.some_list = [1, 2, 300]
-    assert all(is_cake(v) for v in getattr(bakery_mock, "_cake_mocks_").values())
+    assert all(is_cake(v) for v in bakery_mock._cake_mocks_.values())
 
     async with bakery_mock(Comp):
         assert Comp().sleeper1 == 100

@@ -1,4 +1,5 @@
-"""test partial bakery."""
+# ruff: noqa: ERA001, E501
+"""Test partial bakery."""
 
 # import os
 # from dataclasses import dataclass

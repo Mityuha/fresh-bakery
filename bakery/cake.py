@@ -3,22 +3,24 @@
 Book, recipes, etc.
 """
 
+from __future__ import annotations
+
 __all__ = ["Cake", "Pastry", "hand_made"]
 
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncContextManager,
     Awaitable,
     Callable,
     ContextManager,
-    Optional,
-    Set,
+    Final,
     TypeVar,
     cast,
     overload,
 )
 
-from typing_extensions import Final, ParamSpec
+from typing_extensions import ParamSpec
 
 from .baking import Ingredients
 from .piece_of_cake import PieceOfCake
@@ -33,6 +35,9 @@ from .stuff import (
     is_cake,
 )
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
 
 class Pastry(CakeRecipe):
     """Pastry is a public cake interface with almost zero name collision.
@@ -40,7 +45,7 @@ class Pastry(CakeRecipe):
     Your item ingredients and cooking method stored here.
     """
 
-    __CAKE_ATTRIBUTE_ERROR_NAMES__: Final[Set[str]] = {
+    __CAKE_ATTRIBUTE_ERROR_NAMES__: Final[set[str]] = {
         "func",  # partial
         "__wrapped__",  # functools special attribute
     }
@@ -48,7 +53,7 @@ class Pastry(CakeRecipe):
     def __init__(
         self,
         ingredients: Ingredients,
-    ):
+    ) -> None:
         self.__ingredients: Final[Ingredients] = ingredients
         self.__name__: Final = ingredients.__name__
         self.__code__: Final = ingredients.__code__
@@ -64,7 +69,7 @@ class Pastry(CakeRecipe):
         """Repr."""
         return self.__ingredients.__repr__()
 
-    def __copy__(self) -> "Cakeable[Any]":
+    def __copy__(self) -> Cakeable[Any]:
         """Copy itself with all ingredients and technologies.
 
         If cake is not baked then such a cake's copy is cake itself.
@@ -77,7 +82,7 @@ class Pastry(CakeRecipe):
         ingr_copy: Ingredients = self.__ingredients.__copy__()
         return cast(Cakeable[Any], Pastry(ingr_copy))
 
-    def __deepcopy__(self, memo: Any) -> "Cakeable[Any]":
+    def __deepcopy__(self, memo: Any) -> Cakeable[Any]:
         """Deep copy with all ingredients and technologies.
 
         If cake is not baked then such a cake's deep copy is cake itself.
@@ -122,9 +127,9 @@ class Pastry(CakeRecipe):
 
     async def __aexit__(
         self,
-        exc_type: Optional[type],
-        exc_value: Optional[Exception],
-        traceback: Optional[Any],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         return await self.__ingredients.unbake(exc_type, exc_value, traceback)
 
@@ -135,7 +140,6 @@ P = ParamSpec("P")
 
 def hand_made(cake: T, cake_baking_method: BakingMethod) -> T:
     """Hand made cake."""
-
     if not is_cake(cake):
         cake = Cake(cake)
 
@@ -144,22 +148,16 @@ def hand_made(cake: T, cake_baking_method: BakingMethod) -> T:
     return cake
 
 
-# pylint: disable=invalid-name
+@overload
+def Cake(recipe: Awaitable[T]) -> T: ...
 
 
 @overload
-def Cake(recipe: Awaitable[T]) -> T:
-    ...
+def Cake(recipe: AsyncContextManager[T]) -> T: ...
 
 
 @overload
-def Cake(recipe: AsyncContextManager[T]) -> T:
-    ...
-
-
-@overload
-def Cake(recipe: ContextManager[T]) -> T:
-    ...
+def Cake(recipe: ContextManager[T]) -> T: ...
 
 
 @overload
@@ -167,8 +165,7 @@ def Cake(
     recipe: Callable[P, Awaitable[T]],
     *recipe_args: P.args,
     **recipe_kwargs: P.kwargs,
-) -> T:
-    ...
+) -> T: ...
 
 
 @overload
@@ -176,16 +173,14 @@ def Cake(
     recipe: Callable[P, T],
     *recipe_args: P.args,
     **recipe_kwargs: P.kwargs,
-) -> T:
-    ...
+) -> T: ...
 
 
 @overload
-def Cake(recipe: T) -> T:
-    ...
+def Cake(recipe: T) -> T: ...
 
 
-def Cake(  # waiting for issue to close
+def Cake(  # waiting for issue to close  # noqa: N802
     # https://github.com/python/mypy/issues/11004
     recipe: T,
     *recipe_args: Any,

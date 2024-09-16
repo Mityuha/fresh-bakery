@@ -1,10 +1,12 @@
 """Test bakery."""
+
+from __future__ import annotations
+
 import warnings
 from inspect import Parameter, Signature
-from typing import Any, AsyncIterator, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any, AsyncIterator, Type
 
 import pytest
-from pytest_mock import MockerFixture
 
 from . import Bakery as _Bakery
 from . import (
@@ -18,6 +20,8 @@ from . import (
     unbake,
 )
 
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
 Bakery = Type[_Bakery]
 
@@ -25,21 +29,22 @@ Bakery = Type[_Bakery]
 def fixture_factory(mocker_name: str) -> Any:
     """Create bakery mock fixtures by mocker name."""
 
-    async def mocker(**kwargs: Any) -> AsyncIterator["BakeryMock"]:
-        assert len(kwargs) == 1
-        assert list(kwargs.keys())[0].endswith("mocker"), "please, pass mocker fixture."
+    async def mocker(**kwargs: Any) -> AsyncIterator[BakeryMock]:
+        if not all((len(kwargs) == 1, next(iter(kwargs.keys())).endswith("mocker"))):
+            msg: str = "Please, pass mocker fixture."
+            raise ValueError(msg)
 
-        mock: BakeryMock = BakeryMock(list(kwargs.values())[0])
+        mock: BakeryMock = BakeryMock(next(iter(kwargs.values())))
         yield mock
         await mock.stopall()
 
-    mocker.__signature__ = Signature(  # type: ignore
+    mocker.__signature__ = Signature(  # type: ignore[attr-defined]
         [
             Parameter(
                 mocker_name,
                 kind=Parameter.KEYWORD_ONLY,
-            )
-        ]
+            ),
+        ],
     )
     return mocker
 
@@ -54,25 +59,28 @@ session_bakery_mock = pytest.fixture(scope="session")(fixture_factory("session_m
 class BakeryMock:
     """Toy bakery."""
 
-    def __init__(self, mocker: MockerFixture):
+    def __init__(self, mocker: MockerFixture) -> None:
         self._mocker_: MockerFixture = mocker
-        self._cake_mocks_: Dict[str, Cakeable[Any]] = {}
-        self._bakery_: Optional[Bakery] = None
-        self._children_: List["BakeryMock"] = []
+        self._cake_mocks_: dict[str, Cakeable[Any]] = {}
+        self._bakery_: Bakery | None = None
+        self._children_: list[BakeryMock] = []
 
-    def __copy__(self) -> "BakeryMock":
+    def __copy__(self) -> BakeryMock:
         """Copy bakery mock."""
         mock_copy: BakeryMock = BakeryMock(self._mocker_)
         self._children_.append(mock_copy)
         return mock_copy
 
     async def _patch_cake(
-        self, *, bakery: Bakery, cake: Cakeable[Any], new_recipe: Cakeable[Any]
+        self,
+        *,
+        bakery: Bakery,
+        cake: Cakeable[Any],
+        new_recipe: Cakeable[Any],
     ) -> None:
         """Patch cake recipe."""
-        assert is_cake(cake)
-        assert is_cake(new_recipe)
-        assert issubclass(bakery, _Bakery)
+        if not all((is_cake(cake), is_cake(new_recipe), issubclass(bakery, _Bakery))):
+            raise ValueError
 
         ingredients: IngredientsProto = cake_ingredients(cake)
         new_cake: Cakeable[Any] = new_recipe
@@ -87,9 +95,9 @@ class BakeryMock:
 
     async def _patch(self, bakery: Bakery) -> None:
         """Start bakery `bakery` patching."""
-
         if not issubclass(bakery, _Bakery):
-            raise ValueError(f"{bakery} is not a Bakery.")
+            msg: str = f"{bakery} is not a Bakery."
+            raise TypeError(msg)
 
         cake_name: str
         new_recipe: Any
@@ -108,20 +116,24 @@ class BakeryMock:
     async def patch(self, bakery: Bakery) -> None:
         """Check if bakery set and start patching."""
         if self._bakery_ is not None:
-            raise ValueError(f"Old bakery {self._bakery_} is still set. Close it first.")
+            msg: str = f"Old bakery {self._bakery_} is still set. Close it first."
+            raise ValueError(msg)
         return await self._patch(bakery)
 
-    def __call__(self, bakery: Bakery) -> "BakeryMock":
+    def __call__(self, bakery: Bakery) -> BakeryMock:
         if self._bakery_ is not None:
-            raise ValueError(f"Old bakery {self._bakery_} is still set. Close it first.")
+            msg: str = f"Old bakery {self._bakery_} is still set. Close it first."
+            raise ValueError(msg)
         self._bakery_ = bakery
         return self
 
     async def __aenter__(self) -> None:
-        assert self._bakery_ is not None, "You should set bakery first."
+        if self._bakery_ is None:
+            msg: str = "You should set bakery first."
+            raise ValueError(msg)
         return await self._patch(self._bakery_)
 
-    async def __aexit__(self, *_args: Any) -> None:
+    async def __aexit__(self, *_args: object) -> None:
         return await self.reset()
 
     async def reset(self) -> None:
@@ -144,7 +156,8 @@ class BakeryMock:
         if not is_cake(value):
             warnings.warn(
                 "Direct value assignment to bakery_mock is deprecated and will be removed soon. "
-                "Please, use bakery_mock.attr = Cake(value) notation."
+                "Please, use bakery_mock.attr = Cake(value) notation.",
+                stacklevel=2,
             )
             value = Cake(value)
         self._cake_mocks_[attr] = value

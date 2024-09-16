@@ -1,10 +1,11 @@
+"""Test patch before open."""
+
 from bakery import Bakery, Cake
 from bakery.testbakery import BakeryMock
 
 
 async def test_bakery_patch_before_open(bakery_mock: BakeryMock) -> None:
     class MyPC(Bakery):
-
         core_num: int = Cake(4)
         manufacturer: str = Cake("Intel")
 

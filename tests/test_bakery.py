@@ -1,17 +1,14 @@
 """Test store."""
 
+from __future__ import annotations
+
 import sys
 import types
+from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import dataclass
 from typing import (
     Any,
-    AsyncIterator,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Tuple,
-    Type,
+    ClassVar,
     cast,
     no_type_check,
 )
@@ -19,6 +16,7 @@ from typing import (
 import pytest
 
 from bakery import Bakery, Cake, PieceOfCake, bake, cake_name, is_baked, unbake
+
 from . import aclosing
 
 
@@ -28,7 +26,7 @@ async def test_simple_bakery1() -> None:
     class CPU:
         """Settings."""
 
-        def __init__(self, core_num: int, manufacturer: str):
+        def __init__(self, core_num: int, manufacturer: str) -> None:
             self.core_num: int = core_num
             self.manufacturer: str = manufacturer
 
@@ -40,16 +38,16 @@ async def test_simple_bakery1() -> None:
         cpu1: CPU = Cake(CPU, core_num=core_num, manufacturer=manufacturer)
         cpu2: CPU = Cake(CPU, core_num=2, manufacturer="AMD")
 
-    exception: Type[Exception] = AttributeError
+    exception: type[Exception] = AttributeError
     if sys.version_info >= (3, 11):
         exception = TypeError
 
     with pytest.raises(exception):
         # Can only be used with instance
-        async with MyPC:  # type: ignore
+        async with MyPC:  # type: ignore[attr-defined]
             pass
 
-    async with MyPC() as my_pc:  # pylint: disable=invalid-name
+    async with MyPC() as my_pc:
         assert my_pc.core_num == 4
         assert my_pc.manufacturer == "Intel"
         assert my_pc.cpu1.core_num == 4
@@ -65,7 +63,7 @@ async def test_simple_bakery2() -> None:
     class CPU:
         """Settings."""
 
-        def __init__(self, core_num: int, manufacturer: str):
+        def __init__(self, core_num: int, manufacturer: str) -> None:
             self.core_num: int = core_num
             self.manufacturer: str = manufacturer
 
@@ -89,14 +87,12 @@ async def test_simple_bakery2() -> None:
         assert MyPC.cpu2.manufacturer() == "AMD"
         assert MyPC.cpu2().manufacturer == "AMD"
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="core_num"):
         # if test fails here check stuff.is_baked method
         # to make sure getattr gets right private attribute
         _ = MyPC.core_num()
 
-    print("piece of cake", MyPC.cpu1)
-
-    recipe_expected: List[Tuple[Callable, Any]] = [
+    recipe_expected: list[tuple[Callable, Any]] = [
         (MyPC.core_num, 4),
         (MyPC.manufacturer, "Intel"),
         (MyPC.cpu1.core_num, 4),
@@ -111,8 +107,8 @@ async def test_simple_bakery2() -> None:
 
     await MyPC.aclose()
 
-    for recipe, expected in recipe_expected:
-        with pytest.raises(ValueError):
+    for recipe, _ in recipe_expected:
+        with pytest.raises(ValueError, match="is not baked. Just bake it!"):
             _ = recipe()
 
 
@@ -122,26 +118,26 @@ async def test_simple_recipe1() -> None:
     class Box:
         """My juice box."""
 
-        def __init__(self, desc: str):
+        def __init__(self, desc: str) -> None:
             self.desc = desc
 
     desc: str = "apple juice box"
     recipe1: Box = Cake(Box, desc=desc)
 
-    async with recipe1 as box:  # type: ignore
+    async with recipe1 as box:  # type: ignore[attr-defined]
         assert box.desc == desc
 
         piece_of_cake: PieceOfCake = cast(PieceOfCake, recipe1.desc)
         assert piece_of_cake() == desc
 
     with pytest.raises(ValueError, match=f"{recipe1} is not baked. Just bake it!"):
-        _ = recipe1.desc()  # type: ignore
+        _ = recipe1.desc()  # type: ignore[operator]
 
-    box = await bake(recipe1)  # type: ignore
-    assert recipe1().desc == box.desc  # type: ignore
+    box = await bake(recipe1)  # type: ignore[arg-type]
+    assert recipe1().desc == box.desc  # type: ignore[operator]
     assert box.desc == desc
-    assert recipe1.desc() == desc  # type: ignore
-    await unbake(recipe1)  # type: ignore
+    assert recipe1.desc() == desc  # type: ignore[operator]
+    await unbake(recipe1)  # type: ignore[arg-type]
 
 
 async def test_piece_of_cake() -> None:
@@ -153,14 +149,14 @@ async def test_piece_of_cake() -> None:
     class CPU:
         """Cpu."""
 
-        def __init__(self, core_num: int, manufacturer: str):
+        def __init__(self, core_num: int, manufacturer: str) -> None:
             self.core_num: int = core_num
             self.manufacturer: str = manufacturer
 
     class MyPC:
         """My pc."""
 
-        def __init__(self, *cpus: CPU):
+        def __init__(self, *cpus: CPU) -> None:
             self.cpus = cpus
 
     class Computer(Bakery):
@@ -228,7 +224,7 @@ async def test_complex_bakery1() -> None:
 
     await MyHome.aclose()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Cake 'home' is not baked. Just bake it!"):
         _ = MyHome.home.pcomp.cpu.core()
 
 
@@ -244,14 +240,14 @@ async def test_complex_bakery2() -> None:
     class CPU:
         """CPU."""
 
-        def __init__(self, core: Core):
-            self.cores: Dict[str, Core] = {"core": core}
+        def __init__(self, core: Core) -> None:
+            self.cores: dict[str, Core] = {"core": core}
 
     class PComp:
         """PComp."""
 
-        def __init__(self, cpu: CPU):
-            self.cpus: List[CPU] = [cpu]
+        def __init__(self, cpu: CPU) -> None:
+            self.cpus: list[CPU] = [cpu]
 
     @dataclass
     class Home:
@@ -294,7 +290,7 @@ async def test_complex_bakery2() -> None:
 
     await MyHome.aclose()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Cake 'home' is not baked. Just bake it!"):
         _ = MyHome.home.pcomp.cpus[0].cores["core"]()
 
 
@@ -306,7 +302,7 @@ async def test_closed_bakery() -> None:
 
         browny: str = Cake("browny")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Cake 'browny' is not baked. Just bake it!"):
         _ = MyBakery().browny
 
     async with MyBakery():
@@ -333,33 +329,33 @@ async def async_gen() -> AsyncIterator:
 @pytest.mark.parametrize(
     "obj",
     [
-        bool(True),
-        bool(False),
+        True,
+        False,
         bytearray([1, 2]),
         bytes(1),
         classmethod(cast(Callable, lambda: 1)),
         complex(1, 2),
         {"a": 1},
-        float(1.1),
+        1.1,
         frozenset({1, 2, 3}),
-        int(2),
-        list([1, 2]),
-        map(lambda x: x, [1, 2]),
-        memoryview(b''),
+        2,
+        [1, 2],
+        (x for x in [1, 2]),
+        memoryview(b""),
         property(cast(Callable, lambda: 1)),
         range(1, 2),
         set({1, 2}),
         slice(1, 2),
         staticmethod(lambda: 1),
-        str('123'),
+        "123",
         super(object),
-        tuple([1, 2]),
+        (1, 2),
         zip([], []),
         None,
         Ellipsis,
         async_gen(),
         gen(),
-        types.ModuleType('asd'),
+        types.ModuleType("asd"),
         types.SimpleNamespace(),
     ],
 )
@@ -396,7 +392,6 @@ async def test_bakery_value_wrapping() -> None:
         txt1: str = "asd"
         txt2: str = Cake("asd")
 
-    # pylint: disable=not-callable
     async with Wrapper() as wrap:
         assert wrap.num1 == wrap.num2 == Wrapper.num1() == Wrapper.num2()
         assert wrap.txt1 == wrap.txt2 == Wrapper.txt1() == Wrapper.txt2()
@@ -415,11 +410,11 @@ async def test_bakery_caches() -> None:
 
         cake_num: int = 1
         receipt: str = "receipt"
-        prices: dict = {1: 1, 2: 2}
+        prices: ClassVar[dict] = {1: 1, 2: 2}
 
     bakery_items1: dict = {}
     async with MyBakery() as shelf1:
-        bakery_items1 = getattr(MyBakery, "__bakery_items__")
+        bakery_items1 = MyBakery.__bakery_items__  # type: ignore[assignment]
         async with MyBakery() as shelf2:
             assert shelf1.prices is shelf2.prices
 
@@ -433,7 +428,7 @@ async def test_bakery_caches() -> None:
 
     await MyBakery.aclose()
 
-    assert getattr(MyBakery, "__bakery_items__") == bakery_items1
+    assert MyBakery.__bakery_items__ == bakery_items1
 
 
 async def test_object_wrapped_is_object() -> None:
@@ -442,7 +437,7 @@ async def test_object_wrapped_is_object() -> None:
     class Car:
         """Car."""
 
-        def __init__(self, brand: str):
+        def __init__(self, brand: str) -> None:
             self.brand = brand
 
     class Garage(Bakery):
@@ -457,7 +452,7 @@ async def test_object_wrapped_is_object() -> None:
 
 
 async def test_no_cakes() -> None:
-    """What if no cakes specified?"""
+    """What if no cakes specified?."""
 
     @dataclass
     class Car:
@@ -469,7 +464,7 @@ async def test_no_cakes() -> None:
     class Garage:
         """Garage."""
 
-        cars: List[Car]
+        cars: list[Car]
 
     class House(Bakery):
         """House."""
@@ -492,7 +487,6 @@ async def test_multiple_open_close() -> None:
         core_num: int = 4
         manufacturer: str = "Intel"
 
-    # pylint: disable=not-callable
     for _ in range(5):
         async with MyPC() as my_pc:
             assert my_pc.core_num == 4
@@ -513,7 +507,6 @@ async def test_multiple_open_close() -> None:
         assert MyPC.core_num() == 4
 
     assert MyPC.__bakery_visitors__ == 0
-    # pylint: disable=no-member
 
     assert not is_baked(MyPC.core_num)
     assert not is_baked(MyPC.manufacturer)
@@ -548,13 +541,13 @@ async def test_cake_subscription() -> None:
     class IndexBook:
         """Index book."""
 
-        def __init__(self, index: Dict[int, str]):
+        def __init__(self, index: dict[int, str]) -> None:
             self.index = index
 
     class Book(Bakery):
         """Book."""
 
-        index: Dict[int, str] = Cake({1: "page1", 2: "page2", 3: "etc."})
+        index: dict[int, str] = Cake({1: "page1", 2: "page2", 3: "etc."})
 
         index_book: IndexBook = Cake(IndexBook, index)
         page1 = index[1]
@@ -576,8 +569,8 @@ async def test_piece_of_cake_as_argument() -> None:
         """Some settings."""
 
         postgres_dsn: str
-        some_list: List[str]
-        some_dict: Dict[str, str]
+        some_list: list[str]
+        some_dict: dict[str, str]
 
     @dataclass
     class Manager:

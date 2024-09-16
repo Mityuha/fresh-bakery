@@ -1,20 +1,28 @@
-from typing import Any, List
+"""Test nested cakes."""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+from typing_extensions import Self
 
 from bakery import Bakery, Cake
-from bakery.testbakery import BakeryMock
+
+if TYPE_CHECKING:
+    from bakery.testbakery import BakeryMock
 
 
 async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
-    def make_list(*args: Any) -> List:
+    def make_list(*args: Any) -> list:
         return list(*args)
 
     class MyBakery(Bakery):
         value: float = Cake(
-            sum,  # type: ignore
+            sum,
             Cake(
                 Cake(
-                    make_list,  # type: ignore
-                    [Cake(sum, [1, 2, 3])],  # type: ignore
+                    make_list,
+                    [Cake(sum, [1, 2, 3])],
                 ),
             ),
         )
@@ -26,22 +34,22 @@ async def test_nested_cakes_mock_simple(bakery_mock: BakeryMock) -> None:
     async with bakery_mock(MyBakery):
         assert MyBakery().value == 10
 
-    bakery_mock.value = Cake(sum, Cake(make_list, (1, 2, 3, 4)))  # type: ignore
+    bakery_mock.value = Cake(sum, Cake(make_list, (1, 2, 3, 4)))
     async with bakery_mock(MyBakery):
         assert MyBakery().value == 10
 
 
 async def test_nested_cakes_mock_complex(bakery_mock: BakeryMock) -> None:
     class Database:
-        def __init__(self, table: str):
+        def __init__(self, table: str) -> None:
             self.connected: bool = False
             self.table: str = table
 
-        async def __aenter__(self) -> "Database":
+        async def __aenter__(self) -> Self:
             self.connected = True
             return self
 
-        async def __aexit__(self, *_args: Any) -> None:
+        async def __aexit__(self, *_args: object) -> None:
             self.connected = False
 
     class MyBakery(Bakery):

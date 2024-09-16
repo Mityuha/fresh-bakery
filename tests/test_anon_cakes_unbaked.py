@@ -1,12 +1,15 @@
 """Test if all anon cakes are unbaked on errors."""
-from typing import Any, Iterator, List, no_type_check
+
+from __future__ import annotations
+
+from typing import Any, Iterator, no_type_check
 
 import pytest
 
 from bakery import Bakery, Cake, cake_ingredients, cake_name, flatten, is_baked, is_cake
 
 
-def search_for_all_anon_cakes(cakes: List) -> Iterator[Any]:
+def search_for_all_anon_cakes(cakes: list) -> Iterator[Any]:
     """Search for all anon cakes."""
     for cake in cakes:
         ingredients = cake_ingredients(cake)
@@ -14,7 +17,7 @@ def search_for_all_anon_cakes(cakes: List) -> Iterator[Any]:
             [
                 ingredients.recipe_args,
                 ingredients.recipe_kwargs,
-            ]
+            ],
         ):
             if is_cake(ingr):
                 yield from search_for_all_anon_cakes([ingr])
@@ -34,12 +37,12 @@ async def test_anon_cakes_unbaked() -> None:
         """Sum with error."""
         return sum(args)
 
-    anon_cakes: List[float] = [
+    anon_cakes: list[float] = [
         Cake(1.0),
         Cake(2.0),
         Cake(3.0),
         Cake(4.0),
-        Cake("5.0"),  # type: ignore
+        Cake("5.0"),  # type: ignore[list-item]
     ]
 
     class MathBakery(Bakery):
@@ -51,7 +54,7 @@ async def test_anon_cakes_unbaked() -> None:
         async with MathBakery():
             pass
 
-    assert all(not is_baked(cake) for cake in anon_cakes)  # type: ignore
+    assert all(not is_baked(cake) for cake in anon_cakes)  # type: ignore[arg-type]
 
 
 # otherwise mypy hangs forever ;'(
@@ -63,7 +66,7 @@ async def test_nested_anon_cakes_unbaked() -> None:
         """Sum with error."""
         return sum(args)
 
-    anon_cakes: List[float] = [
+    anon_cakes: list[float] = [
         Cake(Cake(Cake(Cake(Cake(1.0))))),
         Cake(Cake(Cake(Cake(Cake(Cake(Cake(2.0))))))),
         Cake(Cake(Cake(Cake(Cake(Cake(3.0)))))),
