@@ -12,10 +12,11 @@ from . import Bakery as _Bakery
 from . import (
     Cake,
     Cakeable,
-    IngredientsProto,
     bake,
     cake_baking_method,
-    cake_ingredients,
+    cake_recipe,
+    cake_recipe_args,
+    cake_recipe_kwargs,
     is_cake,
     unbake,
 )
@@ -82,15 +83,14 @@ class BakeryMock:
         if not all((is_cake(cake), is_cake(new_recipe), issubclass(bakery, _Bakery))):
             raise ValueError
 
-        ingredients: IngredientsProto = cake_ingredients(cake)
         new_cake: Cakeable[Any] = new_recipe
         self._mocker_.patch.multiple(
-            ingredients,
-            recipe=cake_ingredients(new_cake).recipe,
-            recipe_args=cake_ingredients(new_cake).recipe_args,
-            recipe_kwargs=cake_ingredients(new_cake).recipe_kwargs,
-            cake_baking_method=cake_baking_method(new_cake),
-            result=await bake(new_cake),
+            cake,
+            _Pastry__cake_recipe=cake_recipe(new_cake),
+            _Pastry__cake_recipe_args=cake_recipe_args(new_cake),
+            _Pastry__cake_recipe_kwargs=cake_recipe_kwargs(new_cake),
+            _Pastry__cake_baking_method=cake_baking_method(new_cake),
+            _Pastry__cake_result=await bake(new_cake),
         )
 
     async def _patch(self, bakery: Bakery) -> None:

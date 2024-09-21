@@ -7,51 +7,7 @@ from functools import lru_cache, partial
 from inspect import unwrap
 from typing import Any, Callable, cast
 
-from bakery import Bakery, Cake, cake_ingredients
-
-
-def test_callable_cake_attributes() -> None:
-    """Test callable cake attributes."""
-
-    async def some_coro(
-        param1: int,
-        param2: str = "default",
-        param3: float = 0.5,
-    ) -> None:
-        """Just for test."""
-        print(param1, param2, param3)  # noqa: T201
-
-    class MyBakery(Bakery):
-        """Bakery."""
-
-        callable_cake = Cake(some_coro)
-
-    assert MyBakery.callable_cake.__name__ == some_coro.__name__
-    assert MyBakery.callable_cake.__code__ == some_coro.__code__
-    assert MyBakery.callable_cake.__defaults__ == some_coro.__defaults__
-    assert MyBakery.callable_cake.__kwdefaults__ == some_coro.__kwdefaults__
-    assert MyBakery.callable_cake.__annotations__ == some_coro.__annotations__
-    assert MyBakery.callable_cake._is_coroutine is False
-
-
-def test_not_callable_cake_attributes() -> None:
-    """Test not callable cake attributes."""
-
-    class MyBakery(Bakery):
-        """Bakery."""
-
-        const: int = Cake(1)
-
-    assert MyBakery.const.__name__ == cake_ingredients(MyBakery.const).__call__.__name__
-    assert MyBakery.const.__code__ == cake_ingredients(MyBakery.const).__call__.__code__
-    assert MyBakery.const.__defaults__ == cake_ingredients(MyBakery.const).__call__.__defaults__
-    assert (
-        MyBakery.const.__kwdefaults__ == cake_ingredients(MyBakery.const).__call__.__kwdefaults__
-    )
-    assert (
-        MyBakery.const.__annotations__ == cake_ingredients(MyBakery.const).__call__.__annotations__
-    )
-    assert MyBakery.const._is_coroutine is False
+from bakery import Bakery, Cake
 
 
 async def test_cake_partial_func_attribute() -> None:

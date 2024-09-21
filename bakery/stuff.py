@@ -10,9 +10,12 @@ __all__ = [
     "Cakeable",
     "DefaultLogger",
     "IngredientsProto",
+    "anon_cake",
     "cake_baking_method",
-    "cake_ingredients",
     "cake_name",
+    "cake_recipe",
+    "cake_recipe_args",
+    "cake_recipe_kwargs",
     "flatten",
     "is_baked",
     "is_cake",
@@ -34,7 +37,6 @@ from typing import (
     Iterator,
     Mapping,
     TypeVar,
-    cast,
 )
 
 from typing_extensions import Protocol, TypeGuard
@@ -178,22 +180,19 @@ def is_cake_or_piece(value: Any) -> bool:
     return is_cake(value) or is_piece_of_cake(value)
 
 
-def cake_ingredients(cake: Cakeable[Any]) -> IngredientsProto:
-    """Cake ingredients."""
-    if not is_cake(cake):
-        msg = f"Only cakes are baking in the bakery, not {cake}"
-        raise ValueError(msg)
-    return cast(IngredientsProto, cake._Pastry__ingredients)
-
-
 def cake_name(cake: Cakeable[Any]) -> str:
     """Is cake with name."""
-    return cake_ingredients(cake).name
+    return cake.__cake_name__
+
+
+def anon_cake(cake: Cakeable) -> bool:
+    """Check if anonymous cake."""
+    return cake.__cake_anon__
 
 
 def is_baked(cake: Cakeable[Any]) -> bool:
     """Check if recipe is baked."""
-    return cake_ingredients(cake).is_baked
+    return cake.__cake_baked__
 
 
 def assert_baked(cake: Cakeable[Any]) -> None:
@@ -203,9 +202,21 @@ def assert_baked(cake: Cakeable[Any]) -> None:
         raise ValueError(msg)
 
 
+def cake_recipe(cake: Cakeable) -> Any:
+    return cake.__cake_recipe__
+
+
+def cake_recipe_args(cake: Cakeable) -> Any:
+    return cake.__cake_recipe_args__
+
+
+def cake_recipe_kwargs(cake: Cakeable) -> Any:
+    return cake.__cake_recipe_kwargs__
+
+
 def cake_baking_method(cake: Cakeable[Any]) -> IntEnum:
     """Cake baking method."""
-    return cake_ingredients(cake).cake_baking_method
+    return cake.__cake_baking_method__
 
 
 def flatten(
