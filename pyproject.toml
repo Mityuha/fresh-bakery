@@ -120,12 +120,17 @@ target-version = "py38"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "D100",
+    "D101",
+    "D102",
+    "D103",
+    "D104",
+    "D107",
+    "F403",
     "D401",
     "ANN401",
     "D105",
     "SLF001",
-    "D102",
-    "D107",
     "D213",
     "D203",
     "COM812",

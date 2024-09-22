@@ -24,11 +24,10 @@ from typing import (
 
 from typing_extensions import ParamSpec
 
-from .baking import check_baking_method, determine_baking_method
+from .baking import BakingMethod, check_baking_method, determine_baking_method
 from .piece_of_cake import PieceOfCake
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
-    BakingMethod,
     Cakeable,
     CakeRecipe,
     assert_baked,

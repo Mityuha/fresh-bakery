@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import types
 from copy import copy
-from enum import IntEnum, auto
 from typing import (
     Any,
     Final,
@@ -20,25 +19,11 @@ from .types import CakeRecipe, FictionalPiece
 
 __all__ = [
     "BUILTIN_TYPES",
-    "BakingMethod",
     "flatten",
     "is_iterable",
     "is_mapping",
     "replace_cakes",
 ]
-
-
-class BakingMethod(IntEnum):
-    """Baking method."""
-
-    BAKE_AUTO = 0
-    BAKE_FROM_CORO_FUNC = auto()
-    BAKE_FROM_AWAITABLE = auto()
-    BAKE_FROM_ACM = auto()
-    BAKE_FROM_CM = auto()
-    BAKE_FROM_BUILTIN = auto()
-    BAKE_FROM_CALL = auto()
-    BAKE_NO_BAKE = auto()
 
 
 def is_iterable(

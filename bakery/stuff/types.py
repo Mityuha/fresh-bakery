@@ -1,11 +1,5 @@
 from __future__ import annotations
 
-__all__ = [
-    "CakeRecipe",
-    "Cakeable",
-    "FictionalPiece",
-]
-
 from inspect import Signature
 from typing import (
     TYPE_CHECKING,
@@ -16,6 +10,12 @@ from typing import (
 
 if TYPE_CHECKING:
     import types
+
+__all__ = [
+    "CakeRecipe",
+    "Cakeable",
+    "FictionalPiece",
+]
 
 
 class CakeRecipe:

@@ -6,7 +6,7 @@ from .stuff import BakeryLogger, DefaultLogger
 
 logger: BakeryLogger | None = DefaultLogger()
 
-# ruff: noqa: F403, E402
+# ruff: noqa: E402
 from .bakery import *
 from .baking import *
 from .cake import *

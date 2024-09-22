@@ -3,21 +3,34 @@
 from __future__ import annotations
 
 __all__ = [
+    "BakingMethod",
     "bake",
     "check_baking_method",
     "determine_baking_method",
     "unbake",
 ]
+from enum import IntEnum, auto
 from inspect import isawaitable, iscoroutinefunction
 from typing import Any, AsyncContextManager, ContextManager, Final, TypeVar
 
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
     BUILTIN_TYPES,
-    BakingMethod,
     Cakeable,
     is_cake_or_piece,
 )
+
+
+class BakingMethod(IntEnum):
+    BAKE_AUTO = 0
+    BAKE_FROM_CORO_FUNC = auto()
+    BAKE_FROM_AWAITABLE = auto()
+    BAKE_FROM_ACM = auto()
+    BAKE_FROM_CM = auto()
+    BAKE_FROM_BUILTIN = auto()
+    BAKE_FROM_CALL = auto()
+    BAKE_NO_BAKE = auto()
+
 
 BAKING_METHODS: Final = {
     BakingMethod.BAKE_FROM_CALL: lambda _recipe: callable(_recipe),
