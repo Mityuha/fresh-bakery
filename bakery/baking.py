@@ -17,7 +17,6 @@ from typing import Any, AsyncContextManager, ContextManager, Final, TypeVar
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
     BUILTIN_TYPES,
-    Cakeable,
     is_cake_or_piece,
     replace_cakes,
 )
@@ -140,16 +139,14 @@ async def bake_recipe(
 T = TypeVar("T")
 
 
-async def bake(cake: Cakeable[T]) -> T:
-    """Bake cake."""
+async def bake(cake: AsyncContextManager[T]) -> T:
     return await cake.__aenter__()
 
 
 async def unbake(
-    cake: Cakeable[Any],
+    cake: AsyncContextManager[T],
     exc_type: type | None = None,
     exc_value: BaseException | None = None,
     traceback: Any | None = None,
 ) -> None:
-    """Unbake."""
-    return await cake.__aexit__(exc_type, exc_value, traceback)
+    await cake.__aexit__(exc_type, exc_value, traceback)

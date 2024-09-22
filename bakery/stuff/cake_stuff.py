@@ -59,11 +59,11 @@ def cake_recipe(cake: Cakeable) -> Any:
     return cake.__cake_recipe__
 
 
-def cake_recipe_args(cake: Cakeable) -> Any:
+def cake_recipe_args(cake: Cakeable) -> tuple:
     return cake.__cake_recipe_args__
 
 
-def cake_recipe_kwargs(cake: Cakeable) -> Any:
+def cake_recipe_kwargs(cake: Cakeable) -> dict:
     return cake.__cake_recipe_kwargs__
 
 

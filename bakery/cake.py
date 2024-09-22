@@ -105,11 +105,11 @@ class Pastry(CakeRecipe, Generic[R]):
         return self.__cake_recipe
 
     @property
-    def __cake_recipe_args__(self) -> Any:
+    def __cake_recipe_args__(self) -> tuple:
         return self.__cake_recipe_args
 
     @property
-    def __cake_recipe_kwargs__(self) -> Any:
+    def __cake_recipe_kwargs__(self) -> dict:
         return self.__cake_recipe_kwargs
 
     def __repr__(self) -> str:

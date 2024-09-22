@@ -12,7 +12,6 @@ from . import Bakery as _Bakery
 from . import (
     Cake,
     Cakeable,
-    bake,
     cake_baking_method,
     cake_recipe,
     cake_recipe_args,
@@ -90,7 +89,7 @@ class BakeryMock:
             _Pastry__cake_recipe_args=cake_recipe_args(new_cake),
             _Pastry__cake_recipe_kwargs=cake_recipe_kwargs(new_cake),
             _Pastry__cake_baking_method=cake_baking_method(new_cake),
-            _Pastry__cake_result=await bake(new_cake),
+            _Pastry__cake_result=await new_cake.__aenter__(),
         )
 
     async def _patch(self, bakery: Bakery) -> None:
