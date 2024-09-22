@@ -1,15 +1,5 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Any,
-)
-
-from .types import Cakeable, CakeRecipe, FictionalPiece
-
-if TYPE_CHECKING:
-    from enum import IntEnum
-
 __all__ = [
     "anon_cake",
     "assert_baked",
@@ -23,6 +13,16 @@ __all__ = [
     "is_cake_or_piece",
     "is_piece_of_cake",
 ]
+
+from typing import (
+    TYPE_CHECKING,
+    Any,
+)
+
+from .types import Cakeable, CakeRecipe, FictionalPiece
+
+if TYPE_CHECKING:
+    from enum import IntEnum
 
 
 def is_cake(value: Any) -> bool:

@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from functools import partial
-from typing import Any, Callable, Final, Protocol
-
-import bakery
-
-from .types import CakeRecipe
-
 __all__ = [
     "BakeryLogger",
     "CakeRecipe",
     "DefaultLogger",
     "_LOGGER",
 ]
+
+from functools import partial
+from typing import Any, Callable, Final, Protocol
+
+import bakery
+
+from .types import CakeRecipe
 
 
 class BakeryLogger(Protocol):

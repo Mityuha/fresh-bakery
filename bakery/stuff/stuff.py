@@ -1,6 +1,12 @@
-"""Baking stuff."""
-
 from __future__ import annotations
+
+__all__ = [
+    "BUILTIN_TYPES",
+    "flatten",
+    "is_iterable",
+    "is_mapping",
+    "replace_cakes",
+]
 
 import types
 from copy import copy
@@ -16,14 +22,6 @@ from typing_extensions import TypeGuard
 
 from .cake_stuff import is_cake_or_piece
 from .types import CakeRecipe, FictionalPiece
-
-__all__ = [
-    "BUILTIN_TYPES",
-    "flatten",
-    "is_iterable",
-    "is_mapping",
-    "replace_cakes",
-]
 
 
 def is_iterable(
