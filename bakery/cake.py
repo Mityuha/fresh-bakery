@@ -175,7 +175,6 @@ class Pastry(CakeRecipe, Generic[R]):
         return PieceOfCake(self).__getattr__(piece_name)
 
     def __getitem__(self, piece_name: Any) -> PieceOfCake:
-        """Cut a piece of cake."""
         return PieceOfCake(self).__getitem__(piece_name)
 
     async def __aenter__(self) -> Any:
@@ -190,7 +189,7 @@ class Pastry(CakeRecipe, Generic[R]):
 
         recipe = self.__cake_recipe
         if is_cake_or_piece(recipe):
-            recipe = self.__cake_recipe()
+            recipe = recipe()
 
         if not self.__cake_baking_method:
             self.__cake_baking_method = determine_baking_method(recipe)
@@ -260,7 +259,7 @@ def hand_made(cake: T, cake_baking_method: BakingMethod) -> T:
     if not is_cake(cake):
         cake = Cake(cake)
 
-    cake._Pastry__cake_baking_method = cake_baking_method
+    cake._Pastry__cake_baking_method = cake_baking_method  # type: ignore[attr-defined]
     return cake
 
 

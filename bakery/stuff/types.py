@@ -16,6 +16,7 @@ from typing import (
 
 if TYPE_CHECKING:
     import types
+    from enum import IntEnum
 
 
 class CakeRecipe:
@@ -38,46 +39,44 @@ T_co = TypeVar("T_co", covariant=True)
 
 
 class PieceProto(Protocol):
-    """Piece of cake protocol."""
-
     def __getattr__(self, mark: Any) -> PieceProto:
-        """Getattr."""
+        """some_cake.attribute."""
 
     def __getitem__(self, mark: Any) -> PieceProto:
-        """Subscription."""
+        """some_cake["key"]."""
 
     def __call__(self) -> Any:
         """Get cake."""
 
 
 class Cakeable(Protocol[T_co]):
-    """Cakeable protocol."""
+    def __set_name__(self, _: Any, name: str) -> None: ...
 
-    def __set_name__(self, _: Any, name: str) -> None:
-        """Set cakeable name."""
+    def __copy__(self) -> Cakeable[T_co]: ...
 
-    def __repr__(self) -> str:
-        """Repr."""
+    def __call__(self) -> T_co: ...
 
-    def __copy__(self) -> Cakeable[T_co]:
-        """Copy cake."""
+    def __getattr__(self, piece_name: str) -> PieceProto: ...
 
-    def __call__(self) -> T_co:
-        """Call cake."""
+    def __getitem__(self, piece_name: Any) -> PieceProto: ...
 
-    def __getattr__(self, piece_name: str) -> PieceProto:
-        """Getattr."""
+    @property
+    def __cake_name__(self) -> str: ...
 
-    def __getitem__(self, piece_name: Any) -> PieceProto:
-        """Subscription."""
+    @property
+    def __cake_anon__(self) -> bool: ...
 
-    async def __aenter__(self) -> T_co:
-        """Bake cakeable."""
+    @property
+    def __cake_baked__(self) -> bool: ...
+
+    @property
+    def __cake_baking_method__(self) -> IntEnum: ...
+
+    async def __aenter__(self) -> T_co: ...
 
     async def __aexit__(
         self,
         exc_type: type[BaseException] | None,
         exc_value: BaseException | None,
         traceback: types.TracebackType | None,
-    ) -> None:
-        """Unbake cakeable."""
+    ) -> None: ...

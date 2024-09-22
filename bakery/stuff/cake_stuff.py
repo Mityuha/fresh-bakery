@@ -37,7 +37,7 @@ def is_cake_or_piece(value: Any) -> bool:
     return is_cake(value) or is_piece_of_cake(value)
 
 
-def cake_name(cake: Cakeable[Any]) -> str:
+def cake_name(cake: Cakeable) -> str:
     return cake.__cake_name__
 
 
@@ -45,7 +45,7 @@ def anon_cake(cake: Cakeable) -> bool:
     return cake.__cake_anon__
 
 
-def is_baked(cake: Cakeable[Any]) -> bool:
+def is_baked(cake: Cakeable) -> bool:
     return cake.__cake_baked__
 
 
@@ -67,5 +67,5 @@ def cake_recipe_kwargs(cake: Cakeable) -> Any:
     return cake.__cake_recipe_kwargs__
 
 
-def cake_baking_method(cake: Cakeable[Any]) -> IntEnum:
+def cake_baking_method(cake: Cakeable) -> IntEnum:
     return cake.__cake_baking_method__
