@@ -5,6 +5,7 @@ from __future__ import annotations
 __all__ = [
     "BakingMethod",
     "bake",
+    "bake_recipe",
     "check_baking_method",
     "determine_baking_method",
     "unbake",
@@ -18,6 +19,7 @@ from .stuff import (
     BUILTIN_TYPES,
     Cakeable,
     is_cake_or_piece,
+    replace_cakes,
 )
 
 
@@ -75,6 +77,64 @@ def check_baking_method(recipe: Any, method: BakingMethod) -> bool:
     except KeyError:
         msg = f"Cannot validate unknown baking method '{method}'."
         raise ValueError(msg) from None
+
+
+async def bake_from_builtin(recipe: Any, _args: Any, _kwargs: Any) -> Any:
+    return replace_cakes(recipe)
+
+
+async def bake_from_call(recipe: Any, args: Any, kwargs: Any) -> Any:
+    return recipe(*replace_cakes(args), **replace_cakes(kwargs))
+
+
+async def bake_from_cm(recipe: Any, _args: Any, _kwargs: Any) -> Any:
+    return recipe.__enter__()
+
+
+async def bake_from_acm(recipe: Any, _args: Any, _kwargs: Any) -> Any:
+    return await recipe.__aenter__()
+
+
+async def bake_from_coro_func(recipe: Any, args: Any, kwargs: Any) -> Any:
+    return await recipe(*replace_cakes(args), **replace_cakes(kwargs))
+
+
+async def bake_from_awaitable(recipe: Any, _args: Any, _kwargs: Any) -> Any:
+    return await recipe
+
+
+async def bake_no_bake(recipe: Any, _args: Any, _kwargs: Any) -> Any:
+    return recipe
+
+
+METHOD_2_HOW_TO_BAKE: Final = {
+    BakingMethod.BAKE_FROM_BUILTIN: bake_from_builtin,
+    BakingMethod.BAKE_FROM_CALL: bake_from_call,
+    BakingMethod.BAKE_FROM_CM: bake_from_cm,
+    BakingMethod.BAKE_FROM_ACM: bake_from_acm,
+    BakingMethod.BAKE_FROM_CORO_FUNC: bake_from_coro_func,
+    BakingMethod.BAKE_FROM_AWAITABLE: bake_from_awaitable,
+    BakingMethod.BAKE_NO_BAKE: bake_no_bake,
+}
+
+
+async def bake_recipe(
+    recipe: Any,
+    *,
+    recipe_args: Any,
+    recipe_kwargs: Any,
+    baking_method: BakingMethod,
+    cake_name: str,
+) -> Any:
+    if baking_method not in METHOD_2_HOW_TO_BAKE:
+        msg = f"{cake_name}: Unknown baking method '{baking_method}' " f"for recipe {recipe}"
+        raise ValueError(msg)
+
+    return await METHOD_2_HOW_TO_BAKE[baking_method](
+        recipe,
+        recipe_args,
+        recipe_kwargs,
+    )
 
 
 T = TypeVar("T")

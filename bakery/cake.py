@@ -24,7 +24,7 @@ from typing import (
 
 from typing_extensions import ParamSpec
 
-from .baking import BakingMethod, check_baking_method, determine_baking_method
+from .baking import BakingMethod, bake_recipe, check_baking_method, determine_baking_method
 from .piece_of_cake import PieceOfCake
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
@@ -36,7 +36,6 @@ from .stuff import (
     is_cake,
     is_cake_or_piece,
     is_piece_of_cake,
-    replace_cakes,
 )
 
 if TYPE_CHECKING:
@@ -98,7 +97,7 @@ class Pastry(CakeRecipe, Generic[R]):
         return self.__cake_is_baked
 
     @property
-    def __cake_baking_method__(self) -> bool:
+    def __cake_baking_method__(self) -> BakingMethod:
         return self.__cake_baking_method
 
     @property
@@ -196,41 +195,13 @@ class Pastry(CakeRecipe, Generic[R]):
         if not self.__cake_baking_method:
             self.__cake_baking_method = determine_baking_method(recipe)
 
-        if self.__cake_baking_method == BakingMethod.BAKE_FROM_BUILTIN:
-            self.__cake_result = replace_cakes(self.__cake_recipe)
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_FROM_CALL:
-            self.__cake_result = recipe(
-                *replace_cakes(self.__cake_recipe_args),
-                **replace_cakes(self.__cake_recipe_kwargs),
-            )
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_FROM_CM:
-            self.__cake_result = recipe.__enter__()
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_FROM_ACM:
-            self.__cake_result = await recipe.__aenter__()
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_FROM_CORO_FUNC:
-            self.__cake_result = await recipe(
-                *replace_cakes(self.__cake_recipe_args),
-                **replace_cakes(self.__cake_recipe_kwargs),
-            )
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_FROM_AWAITABLE:
-            self.__cake_result = await recipe
-
-        elif self.__cake_baking_method == BakingMethod.BAKE_NO_BAKE:
-            self.__cake_result = recipe
-
-        else:
-            msg = (
-                f"{self}: Unknown baking method '{self.__cake_baking_method}' "
-                f"for recipe {self.__cake_recipe}"
-            )
-            raise ValueError(
-                msg,
-            )
+        self.__cake_result = await bake_recipe(
+            recipe,
+            recipe_args=self.__cake_recipe_args,
+            recipe_kwargs=self.__cake_recipe_kwargs,
+            baking_method=self.__cake_baking_method,
+            cake_name=str(self),
+        )
 
         logger.debug(f"{self} is baked [{self.__cake_baking_method.name}]")
         self.__cake_is_baked = True
