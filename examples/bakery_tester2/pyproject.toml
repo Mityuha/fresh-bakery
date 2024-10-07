@@ -31,13 +31,14 @@ classifiers = ["Programming Language :: Python :: 3.10"]
 
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10,<3.13"
 pydantic = "*"
 asyncpg= "*"
 databases = {version = "*", extras = ["postgresql"]}
 uvicorn = "*"
 fastapi = "*"
 loguru = "*"
+fresh-bakery = {path = "../.."}
 
 [tool.poetry.dev-dependencies]
 black = "*"
