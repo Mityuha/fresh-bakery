@@ -35,11 +35,12 @@ classifiers = ["Programming Language :: Python :: 3.9"]
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.13"
 fastapi = "*"
 uvicorn = "*"
 loguru = "*"
 aiocron = "*"
+fresh-bakery = {path = "../.."}
 
 [tool.poetry.dev-dependencies]
 black = "*"
