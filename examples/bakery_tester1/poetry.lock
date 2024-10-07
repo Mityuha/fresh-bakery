@@ -382,15 +382,12 @@ test = ["anyio[trio] (>=3.2.1,<4.0.0)", "black (==22.3.0)", "databases[sqlite] (
 
 [[package]]
 name = "fresh-bakery"
-version = "0.3.6"
+version = "0.4.0"
 description = "Bake your dependencies stupidly simple!"
 optional = false
 python-versions = ">=3.8,<3.13"
 files = []
 develop = false
-
-[package.dependencies]
-mypy = "^1.11.0"
 
 [package.source]
 type = "directory"
