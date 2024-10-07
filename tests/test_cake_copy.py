@@ -10,8 +10,10 @@ from bakery import (
     Cake,
     bake,
     cake_baking_method,
-    cake_ingredients,
     cake_name,
+    cake_recipe,
+    cake_recipe_args,
+    cake_recipe_kwargs,
     is_baked,
     unbake,
 )
@@ -49,12 +51,9 @@ async def test_copy_cake() -> None:
         assert cake_name(cpu_cake) == cake_name(cpu_new_cake)
         assert cake_baking_method(cpu_cake) == cake_baking_method(cpu_new_cake)
         assert True is is_baked(cpu_cake) != is_baked(cpu_new_cake)
-        assert cake_ingredients(cpu_cake).recipe is cake_ingredients(cpu_new_cake).recipe
-        assert cake_ingredients(cpu_cake).recipe_args == cake_ingredients(cpu_new_cake).recipe_args
-        assert (
-            cake_ingredients(cpu_cake).recipe_kwargs
-            == cake_ingredients(cpu_new_cake).recipe_kwargs
-        )
+        assert cake_recipe(cpu_cake) is cake_recipe(cpu_new_cake)
+        assert cake_recipe_args(cpu_cake) == cake_recipe_args(cpu_new_cake)
+        assert cake_recipe_kwargs(cpu_cake) == cake_recipe_kwargs(cpu_new_cake)
 
         cpu: CPU = cpu_cake()
         with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):
@@ -88,8 +87,8 @@ async def test_deepcopy_cake() -> None:
         assert cake_name(cpu_cake) == cake_name(cpu_new_cake)
         assert cake_baking_method(cpu_cake) == cake_baking_method(cpu_new_cake)
         assert True is is_baked(cpu_cake) != is_baked(cpu_new_cake)
-        assert cake_ingredients(cpu_cake).recipe is cake_ingredients(cpu_new_cake).recipe
-        assert cake_ingredients(cpu_cake).recipe_args == cake_ingredients(cpu_new_cake).recipe_args
+        assert cake_recipe(cpu_cake) is cake_recipe(cpu_new_cake)
+        assert cake_recipe_args(cpu_cake) == cake_recipe_args(cpu_new_cake)
 
         cpu: CPU = cpu_cake()
         with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):

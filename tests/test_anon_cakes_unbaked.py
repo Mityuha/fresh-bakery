@@ -6,27 +6,37 @@ from typing import Any, Iterator, no_type_check
 
 import pytest
 
-from bakery import Bakery, Cake, cake_ingredients, cake_name, flatten, is_baked, is_cake
+from bakery import (
+    Bakery,
+    Cake,
+    anon_cake,
+    cake_name,
+    cake_recipe,
+    cake_recipe_args,
+    cake_recipe_kwargs,
+    flatten,
+    is_baked,
+    is_cake,
+)
 
 
 def search_for_all_anon_cakes(cakes: list) -> Iterator[Any]:
     """Search for all anon cakes."""
     for cake in cakes:
-        ingredients = cake_ingredients(cake)
         for ingr in flatten(
             [
-                ingredients.recipe_args,
-                ingredients.recipe_kwargs,
+                cake_recipe_args(cake),
+                cake_recipe_kwargs(cake),
             ],
         ):
             if is_cake(ingr):
                 yield from search_for_all_anon_cakes([ingr])
                 if not cake_name(ingr):
                     yield ingr
-        if is_cake(ingredients.recipe):
-            yield from search_for_all_anon_cakes([ingredients.recipe])
+        if is_cake(cake_recipe(cake)):
+            yield from search_for_all_anon_cakes([cake_recipe(cake)])
 
-        if not cake_name(cake):
+        if anon_cake(cake):
             yield cake
 
 

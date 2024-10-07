@@ -87,7 +87,6 @@ async def on_startup() -> None:
 
 
 async def on_shutdown() -> None:
-    assert False
     await MyBakery.aclose()
 
 

@@ -1,5 +1,3 @@
-"""Piece of any cake."""
-
 from __future__ import annotations
 
 __all__ = [
@@ -15,32 +13,25 @@ from .stuff import Cakeable, FictionalPiece, is_cake
 
 
 class PieceType:
-    """Piece type."""
-
     def __init__(self, mark: Any) -> None:
         self.mark: Any = mark
 
 
-class PieceAttr(PieceType):
-    """Piece attribute."""
+class PieceAttr(PieceType): ...
 
 
-class PieceSubs(PieceType):
-    """Piece subscription."""
+class PieceSubs(PieceType): ...
 
 
 def copy_piece_of_cake(to_copy: PieceOfCake, mark: PieceType) -> PieceOfCake:
-    """Copy piece_of_cake with mark."""
     piece_copy: PieceOfCake = PieceOfCake(to_copy.cake)
     piece_copy.pieces.extend([*to_copy.pieces, mark])
     return piece_copy
 
 
 class PieceOfCake(FictionalPiece):
-    """Any piece of your any cake."""
-
-    def __init__(self, cake: Cakeable[Any]) -> None:
-        self.cake: Final[Cakeable[Any]] = cake
+    def __init__(self, cake: Cakeable) -> None:
+        self.cake: Final = cake
         self.pieces: Final[list[PieceType]] = []
 
     def __repr__(self) -> str:

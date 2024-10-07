@@ -7,6 +7,7 @@ from __future__ import annotations
 
 __all__ = ["Cake", "Pastry", "hand_made"]
 
+from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -15,6 +16,7 @@ from typing import (
     Callable,
     ContextManager,
     Final,
+    Generic,
     TypeVar,
     cast,
     overload,
@@ -22,24 +24,28 @@ from typing import (
 
 from typing_extensions import ParamSpec
 
-from .baking import Ingredients
+from .baking import BakingMethod, bake_recipe, check_baking_method, determine_baking_method
 from .piece_of_cake import PieceOfCake
+from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
-    BakingMethod,
     Cakeable,
     CakeRecipe,
-    IngredientsProto,
     assert_baked,
-    cake_ingredients,
+    flatten,
     is_baked,
     is_cake,
+    is_cake_or_piece,
+    is_piece_of_cake,
 )
 
 if TYPE_CHECKING:
     from types import TracebackType
 
 
-class Pastry(CakeRecipe):
+R = TypeVar("R")
+
+
+class Pastry(CakeRecipe, Generic[R]):
     """Pastry is a public cake interface with almost zero name collision.
 
     Your item ingredients and cooking method stored here.
@@ -52,22 +58,63 @@ class Pastry(CakeRecipe):
 
     def __init__(
         self,
-        ingredients: Ingredients,
+        recipe: R,
+        *recipe_args: Any,
+        _cake_baking_method: BakingMethod = BakingMethod.BAKE_AUTO,
+        _cake_name: str = "",
+        **recipe_kwargs: Any,
     ) -> None:
-        self.__ingredients: Final[Ingredients] = ingredients
-        self.__name__: Final = ingredients.__name__
-        self.__code__: Final = ingredients.__code__
-        self.__defaults__: Final = ingredients.__defaults__
-        self.__kwdefaults__: Final = ingredients.__kwdefaults__
-        self.__annotations__: Final = ingredients.__annotations__
-        self._is_coroutine: Final = ingredients._is_coroutine
+        self.__cake_recipe: Final = recipe
+        self.__cake_recipe_args: Final = recipe_args
+        self.__cake_recipe_kwargs: Final = recipe_kwargs
+        self.__cake_baking_method: BakingMethod = _cake_baking_method
+        self.__cake_result: Any = None
+        self.__cake_is_baked: bool = False
+        self.__cake_name: str = _cake_name
+
+        if not self.__cake_baking_method:
+            self.__cake_baking_method = determine_baking_method(self.__cake_recipe)
+        else:
+            check_baking_method(self.__cake_recipe, _cake_baking_method)
+
+        if self.__cake_baking_method == BakingMethod.BAKE_NO_BAKE:
+            self.__cake_result = self.__cake_recipe
+            self.__cake_is_baked = True
 
     def __set_name__(self, _: Any, name: str) -> None:
-        self.__ingredients.name = name
+        self.__cake_name = name
+
+    @property
+    def __cake_name__(self) -> str:
+        return self.__cake_name
+
+    @property
+    def __cake_anon__(self) -> bool:
+        return not self.__cake_name
+
+    @property
+    def __cake_baked__(self) -> bool:
+        return self.__cake_is_baked
+
+    @property
+    def __cake_baking_method__(self) -> BakingMethod:
+        return self.__cake_baking_method
+
+    @property
+    def __cake_recipe__(self) -> R:
+        return self.__cake_recipe
+
+    @property
+    def __cake_recipe_args__(self) -> tuple:
+        return self.__cake_recipe_args
+
+    @property
+    def __cake_recipe_kwargs__(self) -> dict:
+        return self.__cake_recipe_kwargs
 
     def __repr__(self) -> str:
-        """Repr."""
-        return self.__ingredients.__repr__()
+        name: str = self.__cake_name or "<anon>"
+        return f"Cake '{name}'"
 
     def __copy__(self) -> Cakeable[Any]:
         """Copy itself with all ingredients and technologies.
@@ -79,8 +126,13 @@ class Pastry(CakeRecipe):
         if not is_baked(self):
             return self
 
-        ingr_copy: Ingredients = self.__ingredients.__copy__()
-        return cast(Cakeable[Any], Pastry(ingr_copy))
+        return Pastry(
+            self.__cake_recipe,
+            *list(self.__cake_recipe_args),
+            _cake_baking_method=self.__cake_baking_method,
+            _cake_name=self.__cake_name,
+            **dict(self.__cake_recipe_kwargs),
+        )
 
     def __deepcopy__(self, memo: Any) -> Cakeable[Any]:
         """Deep copy with all ingredients and technologies.
@@ -90,13 +142,17 @@ class Pastry(CakeRecipe):
         if not is_baked(self):
             return self
 
-        ingr_copy: Ingredients = self.__ingredients.__deepcopy__(memo)
-        return cast(Cakeable[Any], Pastry(ingr_copy))
+        return Pastry(
+            self.__cake_recipe,
+            *deepcopy(self.__cake_recipe_args),
+            _cake_baking_method=self.__cake_baking_method,
+            _cake_name=self.__cake_name,
+            **deepcopy(self.__cake_recipe_kwargs),
+        )
 
     def __call__(self) -> Any:
-        """Just return whole cake."""
         assert_baked(cast(Cakeable[Any], self))
-        return self.__ingredients()
+        return self.__cake_result
 
     def __getattr__(self, piece_name: str) -> PieceOfCake:
         """Cut a piece of cake.
@@ -119,11 +175,36 @@ class Pastry(CakeRecipe):
         return PieceOfCake(self).__getattr__(piece_name)
 
     def __getitem__(self, piece_name: Any) -> PieceOfCake:
-        """Cut a piece of cake."""
         return PieceOfCake(self).__getitem__(piece_name)
 
     async def __aenter__(self) -> Any:
-        return await self.__ingredients.bake()
+        if self.__cake_is_baked:
+            return self.__cake_result
+
+        for recipe in flatten(
+            [self.__cake_recipe_args, self.__cake_recipe_kwargs, self.__cake_recipe]
+        ):
+            if is_cake(recipe):
+                await recipe.__aenter__()
+
+        recipe = self.__cake_recipe
+        if is_cake_or_piece(recipe):
+            recipe = recipe()
+
+        if not self.__cake_baking_method:
+            self.__cake_baking_method = determine_baking_method(recipe)
+
+        self.__cake_result = await bake_recipe(
+            recipe,
+            recipe_args=self.__cake_recipe_args,
+            recipe_kwargs=self.__cake_recipe_kwargs,
+            baking_method=self.__cake_baking_method,
+            cake_name=str(self),
+        )
+
+        logger.debug(f"{self} is baked [{self.__cake_baking_method.name}]")
+        self.__cake_is_baked = True
+        return self.__cake_result
 
     async def __aexit__(
         self,
@@ -131,7 +212,42 @@ class Pastry(CakeRecipe):
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        return await self.__ingredients.unbake(exc_type, exc_value, traceback)
+        """Unbake anonymous recipes even if not self.__cake_is_baked.
+
+        Save recipe called value (recipe())
+        because it will be impossible to do it after recipe unbaked.
+        """
+        recipe: Any = self.__cake_recipe
+
+        is_cake_and_baked: bool = is_cake(recipe) and is_baked(recipe)
+        is_poc_and_baked: bool = is_piece_of_cake(recipe) and is_baked(recipe.cake)
+
+        if is_cake_and_baked or is_poc_and_baked:
+            recipe = recipe()
+
+        _recipe: Any
+        for _recipe in flatten(
+            [self.__cake_recipe, self.__cake_recipe_args, self.__cake_recipe_kwargs]
+        ):
+            if is_cake(_recipe) and _recipe.__cake_anon__:
+                # unbake anonymous recipes only
+                await _recipe.__aexit__(exc_type, exc_value, traceback)
+
+        if not self.__cake_is_baked:
+            return
+
+        # All cakes and piece_of_cakes should already be unbaked
+        # at this moment
+        if not is_cake_or_piece(recipe):
+            if self.__cake_baking_method == BakingMethod.BAKE_FROM_CM:
+                recipe.__exit__(exc_type, exc_value, traceback)
+
+            elif self.__cake_baking_method == BakingMethod.BAKE_FROM_ACM:
+                await recipe.__aexit__(exc_type, exc_value, traceback)
+
+        logger.debug(f"{self} is unbaked")
+
+        self.__cake_is_baked = False
 
 
 T = TypeVar("T")
@@ -143,8 +259,7 @@ def hand_made(cake: T, cake_baking_method: BakingMethod) -> T:
     if not is_cake(cake):
         cake = Cake(cake)
 
-    ingredients: IngredientsProto = cake_ingredients(cast(Cakeable[Any], cake))
-    ingredients.cake_baking_method = cake_baking_method
+    cake._Pastry__cake_baking_method = cake_baking_method  # type: ignore[attr-defined]
     return cake
 
 
@@ -189,5 +304,5 @@ def Cake(  # waiting for issue to close  # noqa: N802
     """Cake as Cake =)."""
     return cast(
         T,
-        Pastry(Ingredients(recipe, *recipe_args, **recipe_kwargs)),
+        Pastry(recipe, *recipe_args, **recipe_kwargs),
     )

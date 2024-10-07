@@ -9,7 +9,6 @@ __all__ = ["Bakery"]
 
 from typing import Any, TypeVar
 
-from .baking import bake, unbake
 from .cake import Cake
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import Cakeable, is_cake
@@ -43,10 +42,12 @@ class Bakery:
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         """Initialize bakery subclass."""
-        bakery_items: dict[str, Cakeable[Any]] = {}
+        bakery_items: dict[str, Cakeable] = {}
         # Do filter __dict__, because iterating
         # over __annotations__ forces to annotate
         # every cake
+        cake_name: str
+        _cake: Cakeable
         for cake_name, _cake in cls.__dict__.items():
             if cake_name.startswith("__") and cake_name.endswith("__"):
                 continue
@@ -76,7 +77,7 @@ class Bakery:
         cake: Cakeable | None = None
         try:
             for cake in cls.__bakery_items__.values():
-                await bake(cake)
+                await cake.__aenter__()
         except (Exception, BaseException) as exc:
             logger.error(f"{cake} cannot be baked: {exc}")
             await cls.aclose()
@@ -96,18 +97,21 @@ class Bakery:
         cls.__bakery_visitors__ -= 1
 
         if cls.__bakery_visitors__ > 0:
-            logger.debug(f"Bakery '{cls}' is working till the last visitor!")
+            logger.debug(
+                f"Bakery '{cls}' is working till the last visitor "
+                f"({cls.__bakery_visitors__} left)!"
+            )
             return
 
         exceptions: list[Exception | BaseException] = []
-        item: Cakeable[Any]
-        for item in reversed(  # it's important to unbake in reverse order
+        cake: Cakeable[Any]
+        for cake in reversed(  # it's important to unbake in reverse order
             # dict views are reversible since 3.8
             # https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects
-            list(cls.__bakery_items__.values()),
+            cls.__bakery_items__.values(),
         ):
             try:
-                await unbake(item, exc_type, exc_value, traceback)
+                await cake.__aexit__(exc_type, exc_value, traceback)
             except (Exception, BaseException) as exc:  # noqa: PERF203
                 exceptions.append(exc)
 
