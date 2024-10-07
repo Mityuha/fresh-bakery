@@ -5,10 +5,11 @@ description = ""
 authors = ["mityuha <mit.makaroff@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.11"
-litestar = "^2.0.0-beta.2"
+python = ">=3.11,<3.13"
 uvicorn = "^0.22.0"
 pytest = "^7.4.0"
+fresh-bakery = {path = "../.."}
+litestar = "^2.12.1"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
