@@ -9,6 +9,7 @@ __all__ = ["Bakery"]
 
 from typing import Any, TypeVar
 
+from .baking import BakingMethod
 from .cake import Cake
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import Cakeable, is_cake
@@ -22,15 +23,32 @@ class Bakery:
     __bakery_visitors__: int
     __bakery_items__: dict[str, Cakeable[Any]]
 
+    def __init__(self, **kwargs: Any) -> None:
+        cls = type(self)
+        for item_name, item_value in kwargs.items():
+            if item_name not in cls.__bakery_items__:
+                msg = f"{cls.__name__} got an unexpected keyword argument '{item_name}'"
+                raise TypeError(msg)
+            values: dict = {
+                "_cake_recipe": item_value,
+                "_cake_baking_method": BakingMethod.BAKE_NO_BAKE,
+                "_cake_name": item_name,
+            }
+            recipe_args: tuple = ()
+            recipe_kwargs: dict = {}
+            if is_cake(item_value):
+                values["_cake_recipe"] = item_value.__cake_recipe__
+                recipe_args = item_value.__cake_recipe_args__
+                recipe_kwargs = item_value.__cake_recipe_kwargs__
+                values["_cake_baking_method"] = BakingMethod.BAKE_AUTO
+
+            old_cake = cls.__bakery_items__[item_name]
+            old_cake.__init__(*recipe_args, **recipe_kwargs, **values)  # type: ignore[misc]
+
     async def __aenter__(self: T) -> T:
-        """Open up your real bakery."""
         return await type(self).aopen()
 
     async def __aexit__(self, *_args: object) -> None:
-        """Close up bakery.
-
-        Unbake all cakes.
-        """
         return await type(self).aclose()
 
     def __getattribute__(self, attr: str) -> Any:
@@ -64,7 +82,6 @@ class Bakery:
 
     @classmethod
     async def aopen(cls: type[T]) -> T:
-        """Open bakery."""
         if cls.__bakery_visitors__:
             cls.__bakery_visitors__ += 1
             # no concurrency yet (like aopen/aopen/aopen)
@@ -93,7 +110,6 @@ class Bakery:
         exc_value: Exception | None = None,
         traceback: Any | None = None,
     ) -> None:
-        """Close bakery."""
         cls.__bakery_visitors__ -= 1
 
         if cls.__bakery_visitors__ > 0:

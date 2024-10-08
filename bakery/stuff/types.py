@@ -10,8 +10,10 @@ from inspect import Signature
 from typing import (
     TYPE_CHECKING,
     Any,
+    Final,
     Protocol,
     TypeVar,
+    final,
 )
 
 if TYPE_CHECKING:
@@ -87,3 +89,10 @@ class Cakeable(Protocol[T_co]):
         exc_value: BaseException | None,
         traceback: types.TracebackType | None,
     ) -> None: ...
+
+
+@final
+class _Undefined: ...
+
+
+UNDEFINED: Final = _Undefined()

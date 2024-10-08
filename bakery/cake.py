@@ -5,7 +5,7 @@ Book, recipes, etc.
 
 from __future__ import annotations
 
-__all__ = ["Cake", "Pastry", "hand_made"]
+__all__ = ["Cake", "Pastry", "__Cake__", "hand_made"]
 
 from copy import deepcopy
 from typing import (
@@ -17,6 +17,7 @@ from typing import (
     ContextManager,
     Final,
     Generic,
+    Literal,
     TypeVar,
     cast,
     overload,
@@ -37,6 +38,7 @@ from .stuff import (
     is_cake_or_piece,
     is_piece_of_cake,
 )
+from .stuff.types import UNDEFINED
 
 if TYPE_CHECKING:
     from types import TracebackType
@@ -58,15 +60,16 @@ class Pastry(CakeRecipe, Generic[R]):
 
     def __init__(
         self,
-        recipe: R,
-        *recipe_args: Any,
+        _cake_recipe: R,
+        *_cake_recipe_args: Any,
         _cake_baking_method: BakingMethod = BakingMethod.BAKE_AUTO,
         _cake_name: str = "",
-        **recipe_kwargs: Any,
+        **_cake_recipe_kwargs: Any,
     ) -> None:
-        self.__cake_recipe: Final = recipe
-        self.__cake_recipe_args: Final = recipe_args
-        self.__cake_recipe_kwargs: Final = recipe_kwargs
+        self.__cake_recipe: Final = _cake_recipe
+        self.__cake_recipe_args: Final = _cake_recipe_args
+        self.__cake_recipe_kwargs: Final = _cake_recipe_kwargs
+
         self.__cake_baking_method: BakingMethod = _cake_baking_method
         self.__cake_result: Any = None
         self.__cake_is_baked: bool = False
@@ -301,8 +304,11 @@ def Cake(  # waiting for issue to close  # noqa: N802
     *recipe_args: Any,
     **recipe_kwargs: Any,
 ) -> T:
-    """Cake as Cake =)."""
     return cast(
         T,
         Pastry(recipe, *recipe_args, **recipe_kwargs),
     )
+
+
+def __Cake__(*, init: Literal[True] = True) -> Any:  # noqa: N802, N807, ARG001
+    return Cake(UNDEFINED)
