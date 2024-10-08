@@ -26,6 +26,7 @@ async def test_more_than_one_arguments_not_specified(missed_arg_num: int) -> Non
     if missed_arg_num == 2:
         values = {"arg_1": 1, "arg_2": 2}
         formatted_args = "'arg_3' and 'arg_4'"
+
     with pytest.raises(
         TypeError,
         match=f"missing {missed_arg_num} required keyword-only arguments: {formatted_args}",
