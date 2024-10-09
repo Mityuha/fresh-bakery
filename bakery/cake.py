@@ -7,6 +7,7 @@ from __future__ import annotations
 
 __all__ = ["Cake", "Pastry", "__Cake__", "hand_made"]
 
+from contextlib import contextmanager
 from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
@@ -17,19 +18,19 @@ from typing import (
     ContextManager,
     Final,
     Generic,
+    Iterator,
     Literal,
     TypeVar,
     cast,
     overload,
 )
 
-from typing_extensions import ParamSpec
+from typing_extensions import ParamSpec, Self
 
 from .baking import BakingMethod, bake_recipe, check_baking_method, determine_baking_method
 from .piece_of_cake import PieceOfCake
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
-    Cakeable,
     CakeRecipe,
     assert_baked,
     flatten,
@@ -75,6 +76,8 @@ class Pastry(CakeRecipe, Generic[R]):
         self.__cake_is_baked: bool = False
         self.__cake_name: str = _cake_name
 
+        self.__cake_replaced: Pastry | None = None
+
         if not self.__cake_baking_method:
             self.__cake_baking_method = determine_baking_method(self.__cake_recipe)
         else:
@@ -115,20 +118,49 @@ class Pastry(CakeRecipe, Generic[R]):
     def __cake_recipe_kwargs__(self) -> dict:
         return self.__cake_recipe_kwargs
 
+    @property
+    def __cake_undefined__(self) -> bool:
+        return self.__cake_recipe is UNDEFINED
+
+    @contextmanager
+    def __cake_replace__(
+        self,
+        cake_recipe: Any,
+        *cake_recipe_args: Any,
+        cake_baking_method: BakingMethod = BakingMethod.BAKE_AUTO,
+        **cake_recipe_kwargs: Any,
+    ) -> Iterator[Self]:
+        if self.__cake_replaced:
+            msg = f"Cannot replace cake '{self}' that's already replaced"
+            raise TypeError(msg)
+
+        if self.__cake_is_baked and self.__cake_baking_method != BakingMethod.BAKE_NO_BAKE:
+            msg = f"Cannot replace cake '{self}' that's already baked."
+            raise TypeError(msg)
+
+        self.__cake_replaced = self.__copy__()
+        self.__cake_recipe = cake_recipe  # type: ignore[misc]
+        self.__cake_recipe_args = cake_recipe_args  # type: ignore[misc]
+        self.__cake_recipe_kwargs = cake_recipe_kwargs  # type: ignore[misc]
+        self.__cake_baking_method = cake_baking_method
+        try:
+            yield self
+        finally:
+            self.__cake_recipe = self.__cake_replaced.__cake_recipe__  # type: ignore[misc]
+            self.__cake_recipe_args = self.__cake_replaced.__cake_recipe_args__  # type: ignore[misc]
+            self.__cake_recipe_kwargs = self.__cake_replaced.__cake_recipe_kwargs__  # type: ignore[misc]
+            self.__cake_baking_method = self.__cake_replaced.__cake_baking_method__
+            self.__cake_replaced = None
+
     def __repr__(self) -> str:
         name: str = self.__cake_name or "<anon>"
         return f"Cake '{name}'"
 
-    def __copy__(self) -> Cakeable[Any]:
+    def __copy__(self) -> Pastry[R]:
         """Copy itself with all ingredients and technologies.
-
-        If cake is not baked then such a cake's copy is cake itself.
 
         'Copy cake' just sounds like 'cupcake'. And I like cupcakes ;)
         """
-        if not is_baked(self):
-            return self
-
         return Pastry(
             self.__cake_recipe,
             *list(self.__cake_recipe_args),
@@ -137,14 +169,8 @@ class Pastry(CakeRecipe, Generic[R]):
             **dict(self.__cake_recipe_kwargs),
         )
 
-    def __deepcopy__(self, memo: Any) -> Cakeable[Any]:
-        """Deep copy with all ingredients and technologies.
-
-        If cake is not baked then such a cake's deep copy is cake itself.
-        """
-        if not is_baked(self):
-            return self
-
+    def __deepcopy__(self, memo: Any) -> Pastry[R]:
+        """Deep copy with all ingredients and technologies."""
         return Pastry(
             self.__cake_recipe,
             *deepcopy(self.__cake_recipe_args),
@@ -154,7 +180,7 @@ class Pastry(CakeRecipe, Generic[R]):
         )
 
     def __call__(self) -> Any:
-        assert_baked(cast(Cakeable[Any], self))
+        assert_baked(self)
         return self.__cake_result
 
     def __getattr__(self, piece_name: str) -> PieceOfCake:

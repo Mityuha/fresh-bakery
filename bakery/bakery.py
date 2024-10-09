@@ -40,7 +40,6 @@ class Bakery:
             values: dict = {
                 "_cake_recipe": item_value,
                 "_cake_baking_method": BakingMethod.BAKE_NO_BAKE,
-                "_cake_name": item_name,
             }
             recipe_args: tuple = ()
             recipe_kwargs: dict = {}
