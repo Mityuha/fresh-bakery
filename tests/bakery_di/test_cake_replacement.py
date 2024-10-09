@@ -64,3 +64,15 @@ async def test_cake_replacement_rollback_after_exception() -> None:
 
     async with cake:
         assert cake() == value
+
+
+async def test_cake_replacement_error_if_not_unbaked() -> None:
+    value = 1
+    replace_with = 2
+    cake = Pastry(value)
+
+    with cake.__cake_replace__(replace_with), pytest.raises(TypeError):
+        await cake.__aenter__()
+
+    async with cake:
+        assert cake() == value

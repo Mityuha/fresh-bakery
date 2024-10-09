@@ -125,10 +125,10 @@ class Pastry(CakeRecipe, Generic[R]):
     @contextmanager
     def __cake_replace__(
         self,
-        cake_recipe: Any,
-        *cake_recipe_args: Any,
-        cake_baking_method: BakingMethod = BakingMethod.BAKE_AUTO,
-        **cake_recipe_kwargs: Any,
+        _cake_recipe: Any,
+        *_cake_recipe_args: Any,
+        _cake_baking_method: BakingMethod = BakingMethod.BAKE_AUTO,
+        **_cake_recipe_kwargs: Any,
     ) -> Iterator[Self]:
         if self.__cake_replaced:
             msg = f"Cannot replace cake '{self}' that's already replaced"
@@ -139,10 +139,13 @@ class Pastry(CakeRecipe, Generic[R]):
             raise TypeError(msg)
 
         self.__cake_replaced = self.__copy__()
-        self.__cake_recipe = cake_recipe  # type: ignore[misc]
-        self.__cake_recipe_args = cake_recipe_args  # type: ignore[misc]
-        self.__cake_recipe_kwargs = cake_recipe_kwargs  # type: ignore[misc]
-        self.__cake_baking_method = cake_baking_method
+        self.__cake_recipe = _cake_recipe  # type: ignore[misc]
+        self.__cake_recipe_args = _cake_recipe_args  # type: ignore[misc]
+        self.__cake_recipe_kwargs = _cake_recipe_kwargs  # type: ignore[misc]
+        self.__cake_baking_method = _cake_baking_method
+        self.__cake_is_baked = False
+        self.__cake_result = None
+        logger.debug(f"{self} was replaced")
         try:
             yield self
         finally:
@@ -151,6 +154,13 @@ class Pastry(CakeRecipe, Generic[R]):
             self.__cake_recipe_kwargs = self.__cake_replaced.__cake_recipe_kwargs__  # type: ignore[misc]
             self.__cake_baking_method = self.__cake_replaced.__cake_baking_method__
             self.__cake_replaced = None
+
+        if self.__cake_is_baked:
+            msg = (
+                f"'{self}' replacement was rollbacked but cake is still baked. "
+                "Unbake the cake first!"
+            )
+            raise TypeError(msg)
 
     def __repr__(self) -> str:
         name: str = self.__cake_name or "<anon>"

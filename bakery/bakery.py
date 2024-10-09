@@ -7,7 +7,7 @@ from __future__ import annotations
 
 __all__ = ["Bakery"]
 
-from typing import Any, AsyncContextManager, Protocol, TypeVar
+from typing import Any, AsyncContextManager, ContextManager, Protocol, TypeVar
 
 from .baking import BakingMethod
 from .cake import Cake
@@ -23,6 +23,13 @@ class Cakeable(Protocol, AsyncContextManager):
     def __cake_name__(self) -> str: ...
     @property
     def __cake_undefined__(self) -> bool: ...
+    def __cake_replace__(
+        self,
+        _cake_recipe: Any,
+        *_cake_recipe_args: Any,
+        _cake_baking_method: BakingMethod,
+        **_cake_recipe_kwargs: Any,
+    ) -> ContextManager[Cakeable]: ...
 
 
 class Bakery:
@@ -30,27 +37,40 @@ class Bakery:
 
     __bakery_visitors__: int
     __bakery_items__: dict[str, Cakeable]
+    __bakery_replaced_cakes__: dict[str, ContextManager]
 
     def __init__(self, **kwargs: Any) -> None:
         cls = type(self)
         for item_name, item_value in kwargs.items():
             if item_name not in cls.__bakery_items__:
-                msg = f"{cls.__name__} got an unexpected keyword argument '{item_name}'"
+                msg = f"{cls.__qualname__} got an unexpected keyword argument '{item_name}'"
                 raise TypeError(msg)
-            values: dict = {
-                "_cake_recipe": item_value,
-                "_cake_baking_method": BakingMethod.BAKE_NO_BAKE,
-            }
+
+            if item_name in cls.__bakery_replaced_cakes__:
+                msg = (
+                    f"{cls.__qualname__} initialized multiple times with keyword argument: "
+                    f"'{item_name}'"
+                )
+                raise TypeError(msg)
+
+            cake_recipe: Any = item_value
+            cake_baking_method = BakingMethod.BAKE_NO_BAKE
             recipe_args: tuple = ()
             recipe_kwargs: dict = {}
             if is_cake(item_value):
-                values["_cake_recipe"] = item_value.__cake_recipe__
+                cake_recipe = item_value.__cake_recipe__
                 recipe_args = item_value.__cake_recipe_args__
                 recipe_kwargs = item_value.__cake_recipe_kwargs__
-                values["_cake_baking_method"] = BakingMethod.BAKE_AUTO
+                cake_baking_method = BakingMethod.BAKE_AUTO
 
-            old_cake = cls.__bakery_items__[item_name]
-            old_cake.__init__(*recipe_args, **recipe_kwargs, **values)  # type: ignore[misc]
+            cls.__bakery_replaced_cakes__[item_name] = cls.__bakery_items__[
+                item_name
+            ].__cake_replace__(
+                cake_recipe,
+                *recipe_args,
+                **recipe_kwargs,
+                _cake_baking_method=cake_baking_method,
+            )
 
     async def __aenter__(self: T) -> T:
         return await type(self).aopen()
@@ -86,6 +106,7 @@ class Bakery:
 
         cls.__bakery_items__ = bakery_items
         cls.__bakery_visitors__ = 0
+        cls.__bakery_replaced_cakes__ = {}
 
     @classmethod
     async def aopen(cls: type[T]) -> T:
@@ -94,6 +115,9 @@ class Bakery:
             # no concurrency yet (like aopen/aopen/aopen)
             # anyio lock required (on demand)
             return cls()
+
+        for replacement in cls.__bakery_replaced_cakes__.values():
+            replacement.__enter__()
 
         missed_args: list[str] = [
             cake.__cake_name__ for cake in cls.__bakery_items__.values() if cake.__cake_undefined__
