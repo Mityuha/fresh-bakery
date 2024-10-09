@@ -35,10 +35,10 @@ class MyPC(Bakery):
     cpu: CPU = Cake(CPU, core_num=core_num, manufacturer=manufacturer)
 
 
-def test_copy_cake_not_baked_is_cake_itself() -> None:
-    """Test cake not baked copy is cake itself."""
-    assert MyPC.cpu is copy(MyPC.cpu)
-    assert MyPC.cpu is deepcopy(MyPC.cpu)
+def test_copy_cake_not_baked_is_not_cake_itself() -> None:
+    """Test cake not baked copy is not cake itself."""
+    assert MyPC.cpu is not copy(MyPC.cpu)
+    assert MyPC.cpu is not deepcopy(MyPC.cpu)
 
 
 async def test_copy_cake() -> None:
