@@ -71,8 +71,11 @@ async def test_cake_replacement_error_if_not_unbaked() -> None:
     replace_with = 2
     cake = Pastry(value)
 
-    with cake.__cake_replace__(replace_with), pytest.raises(TypeError):
+    with pytest.raises(TypeError), cake.__cake_replace__(replace_with):
         await cake.__aenter__()
+
+    assert cake() == replace_with
+    await cake.__aexit__(None, None, None)
 
     async with cake:
         assert cake() == value
