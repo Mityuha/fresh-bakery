@@ -139,6 +139,10 @@ class Bakery:
                 )
 
             logger.error(msg)
+            for replacement in reversed(cls.__bakery_replaced_cakes__.values()):
+                replacement.__exit__(None, None, None)
+
+            cls.__bakery_replaced_cakes__.clear()
             raise TypeError(msg)
 
         cls.__bakery_visitors__ += 1
@@ -182,6 +186,11 @@ class Bakery:
                 await cake.__aexit__(exc_type, exc_value, traceback)
             except (Exception, BaseException) as exc:  # noqa: PERF203
                 exceptions.append(exc)
+
+        for replacement in reversed(cls.__bakery_replaced_cakes__.values()):
+            replacement.__exit__(exc_type, exc_value, traceback)
+
+        cls.__bakery_replaced_cakes__.clear()
 
         logger.debug(f"Bakery '{cls}' is closed.")
 

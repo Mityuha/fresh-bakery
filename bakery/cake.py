@@ -145,7 +145,14 @@ class Pastry(CakeRecipe, Generic[R]):
         self.__cake_baking_method = _cake_baking_method
         self.__cake_is_baked = False
         self.__cake_result = None
-        logger.debug(f"{self} was replaced")
+
+        orig_recipe_str: str = (
+            "__cake__"
+            if self.__cake_replaced.__cake_undefined__
+            else str(self.__cake_replaced.__cake_recipe__)
+        )
+
+        logger.debug(f"{self} was replaced: {orig_recipe_str} --> {self.__cake_recipe}")
         try:
             yield self
         finally:
