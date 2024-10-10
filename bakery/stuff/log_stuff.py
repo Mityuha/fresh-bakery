@@ -7,6 +7,7 @@ __all__ = [
     "_LOGGER",
 ]
 
+from datetime import datetime
 from functools import partial
 from typing import Any, Callable, Final, Protocol
 
@@ -60,6 +61,9 @@ class DefaultLogger:
     @staticmethod
     def _log(level: str, message: str) -> None:
         """Log it."""
+        print(  # noqa: T201
+            f"{datetime.now().isoformat(sep=' ', timespec='milliseconds')} | {level} | {message}"  # noqa: DTZ005
+        )
 
     def __getattr__(self, attr: str) -> Callable[..., Any]:
         """Check and get default logger attribute."""
