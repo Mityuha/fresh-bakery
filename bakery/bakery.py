@@ -32,6 +32,18 @@ class Cakeable(Protocol, AsyncContextManager):
     ) -> ContextManager[Cakeable]: ...
 
 
+def replace_cakes(cakes: dict[str, ContextManager]) -> None:
+    for replacement in cakes.values():
+        replacement.__enter__()
+
+
+def unreplace_cakes(cakes: dict[str, ContextManager]) -> None:
+    for replacement in reversed(cakes.values()):
+        replacement.__exit__(None, None, None)
+
+    cakes.clear()
+
+
 class Bakery:
     """Your bakery."""
 
@@ -116,8 +128,7 @@ class Bakery:
             # anyio lock required (on demand)
             return cls()
 
-        for replacement in cls.__bakery_replaced_cakes__.values():
-            replacement.__enter__()
+        replace_cakes(cls.__bakery_replaced_cakes__)
 
         missed_args: list[str] = [
             cake.__cake_name__ for cake in cls.__bakery_items__.values() if cake.__cake_undefined__
@@ -139,10 +150,7 @@ class Bakery:
                 )
 
             logger.error(msg)
-            for replacement in reversed(cls.__bakery_replaced_cakes__.values()):
-                replacement.__exit__(None, None, None)
-
-            cls.__bakery_replaced_cakes__.clear()
+            unreplace_cakes(cls.__bakery_replaced_cakes__)
             raise TypeError(msg)
 
         cls.__bakery_visitors__ += 1
