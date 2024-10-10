@@ -12,6 +12,7 @@ __all__ = [
     "is_cake",
     "is_cake_or_piece",
     "is_piece_of_cake",
+    "recipe_format",
 ]
 
 from typing import (
@@ -19,7 +20,7 @@ from typing import (
     Any,
 )
 
-from .types import Cakeable, CakeRecipe, FictionalPiece
+from .types import UNDEFINED, Cakeable, CakeRecipe, FictionalPiece
 
 if TYPE_CHECKING:
     from enum import IntEnum
@@ -69,3 +70,19 @@ def cake_recipe_kwargs(cake: Cakeable) -> dict:
 
 def cake_baking_method(cake: Cakeable) -> IntEnum:
     return cake.__cake_baking_method__
+
+
+def recipe_format(recipe: Any, method: IntEnum) -> str:
+    fmt: str
+    if recipe is UNDEFINED:
+        fmt = "__cake__"
+    elif hasattr(recipe, "__qualname__"):
+        fmt = recipe.__qualname__
+    elif hasattr(recipe, "__name__"):
+        fmt = recipe.__name__
+    elif hasattr(recipe, "__class__"):
+        fmt = recipe.__class__.__qualname__
+    else:
+        fmt = str(recipe)
+
+    return f"{fmt}[{method.name}]"
