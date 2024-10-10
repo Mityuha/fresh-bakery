@@ -49,7 +49,7 @@ class PieceProto(Protocol):
         """some_cake["key"]."""
 
     def __call__(self) -> Any:
-        """Get cake."""
+        """some_cake()."""
 
 
 class Cakeable(Protocol[T_co]):
