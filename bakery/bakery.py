@@ -195,10 +195,7 @@ class Bakery:
             except (Exception, BaseException) as exc:  # noqa: PERF203
                 exceptions.append(exc)
 
-        for replacement in reversed(cls.__bakery_replaced_cakes__.values()):
-            replacement.__exit__(exc_type, exc_value, traceback)
-
-        cls.__bakery_replaced_cakes__.clear()
+        unreplace_cakes(cls.__bakery_replaced_cakes__)
 
         logger.debug(f"Bakery '{cls}' is closed.")
 
