@@ -18,6 +18,7 @@ from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
     BUILTIN_TYPES,
     is_cake_or_piece,
+    is_undefined,
     replace_cakes,
 )
 
@@ -46,6 +47,8 @@ BAKING_METHODS: Final = {
 
 def determine_baking_method(recipe: Any) -> BakingMethod:
     """Determine the first available baking method for recipe."""
+    if is_undefined(recipe):
+        return BakingMethod.BAKE_NO_BAKE
     if is_cake_or_piece(recipe):
         # Baking method depends on what object
         # really is inside cake/piece_of_cake
