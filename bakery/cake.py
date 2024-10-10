@@ -38,6 +38,7 @@ from .stuff import (
     is_cake,
     is_cake_or_piece,
     is_piece_of_cake,
+    recipe_format,
 )
 from .stuff.types import UNDEFINED
 
@@ -138,6 +139,9 @@ class Pastry(CakeRecipe, Generic[R]):
             msg = f"Cannot replace cake '{self}' that's already baked."
             raise TypeError(msg)
 
+        is_replacement: bool = self.__cake_recipe is not UNDEFINED
+        orig_recipe_fmt: str = recipe_format(self.__cake_recipe, self.__cake_baking_method)
+
         self.__cake_replaced = self.__copy__()
         self.__cake_recipe = _cake_recipe  # type: ignore[misc]
         self.__cake_recipe_args = _cake_recipe_args  # type: ignore[misc]
@@ -146,13 +150,10 @@ class Pastry(CakeRecipe, Generic[R]):
         self.__cake_is_baked = False
         self.__cake_result = None
 
-        orig_recipe_str: str = (
-            "__cake__"
-            if self.__cake_replaced.__cake_undefined__
-            else str(self.__cake_replaced.__cake_recipe__)
-        )
+        new_recipe_fmt: str = recipe_format(self.__cake_recipe, self.__cake_baking_method)
 
-        logger.debug(f"{self} was replaced: {orig_recipe_str} --> {self.__cake_recipe}")
+        if is_replacement:
+            logger.debug(f"{self} was replaced: {orig_recipe_fmt} ==> {new_recipe_fmt}")
         try:
             yield self
         finally:
@@ -161,6 +162,8 @@ class Pastry(CakeRecipe, Generic[R]):
             self.__cake_recipe_kwargs = self.__cake_replaced.__cake_recipe_kwargs__  # type: ignore[misc]
             self.__cake_baking_method = self.__cake_replaced.__cake_baking_method__
             self.__cake_replaced = None
+            if is_replacement:
+                logger.debug(f"{self} was restored: {orig_recipe_fmt} <== {new_recipe_fmt}")
 
         if self.__cake_is_baked:
             msg = (
