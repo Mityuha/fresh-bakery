@@ -4,6 +4,7 @@ __all__ = [
     "CakeRecipe",
     "Cakeable",
     "FictionalPiece",
+    "is_undefined",
 ]
 
 from inspect import Signature
@@ -96,3 +97,7 @@ class _Undefined: ...
 
 
 UNDEFINED: Final = _Undefined()
+
+
+def is_undefined(obj: Any) -> bool:
+    return obj is UNDEFINED
