@@ -5,6 +5,7 @@ __all__ = [
     "Cakeable",
     "FictionalPiece",
     "is_undefined",
+    "recipe_format",
 ]
 
 from inspect import Signature
@@ -101,3 +102,19 @@ UNDEFINED: Final = _Undefined()
 
 def is_undefined(obj: Any) -> bool:
     return obj is UNDEFINED
+
+
+def recipe_format(recipe: Any, method: IntEnum) -> str:
+    fmt: str
+    if recipe is UNDEFINED:
+        fmt = "__cake__"
+    elif hasattr(recipe, "__qualname__"):
+        fmt = recipe.__qualname__
+    elif hasattr(recipe, "__name__"):
+        fmt = recipe.__name__
+    elif hasattr(recipe, "__class__"):
+        fmt = recipe.__class__.__qualname__
+    else:
+        fmt = str(recipe)
+
+    return f"{fmt}[{method.name}]"
