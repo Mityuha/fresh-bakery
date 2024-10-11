@@ -53,6 +53,13 @@ class Bakery:
 
     def __init__(self, **kwargs: Any) -> None:
         cls = type(self)
+        if cls.__bakery_visitors__ and kwargs:
+            msg = (
+                f"{cls.__qualname__} initialized multiple times with keyword arguments. "
+                f"It doesn't make sense. Use '{cls.__qualname__}()' instead"
+            )
+            raise TypeError(msg)
+
         for item_name, item_value in kwargs.items():
             if item_name not in cls.__bakery_items__:
                 msg = f"{cls.__qualname__} got an unexpected keyword argument '{item_name}'"
@@ -164,7 +171,7 @@ class Bakery:
             await cls.aclose()
             raise exc from None
 
-        logger.debug(f"Bakery '{cls}' is opened. Welcome!")
+        logger.debug(f"Bakery '{cls.__qualname__}' is opened. Welcome!")
         return cls()
 
     @classmethod
@@ -178,7 +185,7 @@ class Bakery:
 
         if cls.__bakery_visitors__ > 0:
             logger.debug(
-                f"Bakery '{cls}' is working till the last visitor "
+                f"Bakery '{cls.__qualname__}' is working till the last visitor "
                 f"({cls.__bakery_visitors__} left)!"
             )
             return
@@ -197,7 +204,7 @@ class Bakery:
 
         unreplace_cakes(cls.__bakery_replaced_cakes__)
 
-        logger.debug(f"Bakery '{cls}' is closed.")
+        logger.debug(f"Bakery '{cls.__qualname__}' is closed. Goodbye!")
 
         if exceptions:
             # For now raise the first exception occurred.
