@@ -24,7 +24,7 @@ async def test_multiple_openings_with_values() -> None:
     with pytest.raises(
         TypeError,
         match="(.*) initialized multiple times with keyword arguments. "
-        "It doesn't make sense. (.*)",
+        "(.*) discouraging and doesn't make sense. (.*)",
     ):
         async with MyPC(cpu_1=cpu), MyPC(cpu_1=cpu):  # type: ignore[call-arg]
             ...

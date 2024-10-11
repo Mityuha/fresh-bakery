@@ -56,7 +56,8 @@ class Bakery:
         if cls.__bakery_visitors__ and kwargs:
             msg = (
                 f"{cls.__qualname__} initialized multiple times with keyword arguments. "
-                f"It doesn't make sense. Use '{cls.__qualname__}()' instead"
+                "Such behaviour is discouraging and doesn't make sense. "
+                f"Use '{cls.__qualname__}()' instead"
             )
             raise TypeError(msg)
 
