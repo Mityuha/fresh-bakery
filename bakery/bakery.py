@@ -81,7 +81,7 @@ class Bakery:
                 cake_recipe = item_value.__cake_recipe__
                 recipe_args = item_value.__cake_recipe_args__
                 recipe_kwargs = item_value.__cake_recipe_kwargs__
-                cake_baking_method = BakingMethod.BAKE_AUTO
+                cake_baking_method = item_value.__cake_baking_method__
 
             cls.__bakery_replaced_cakes__[item_name] = cls.__bakery_items__[
                 item_name

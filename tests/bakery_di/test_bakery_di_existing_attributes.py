@@ -1,6 +1,6 @@
 import pytest
 
-from bakery import Bakery, Cake
+from bakery import Bakery, BakingMethod, Cake, __Cake__, hand_made
 
 from .misc import CPU
 
@@ -23,3 +23,13 @@ async def test_di_with_value(with_value: int) -> None:
     async with MyPC() as pc:
         assert pc.cpu_1.core_num == pc.cpu_2.core_num == 1
         assert pc.cpu_1.manufacturer == pc.cpu_2.manufacturer == "AMD"
+
+
+async def test_di_with_hand_made() -> None:
+    class TypeBakery(Bakery):
+        my_type: type = __Cake__()
+
+    async with TypeBakery(
+        my_type=hand_made(Cake(dict), cake_baking_method=BakingMethod.BAKE_NO_BAKE)  # type: ignore[arg-type]
+    ) as bakery:
+        assert bakery.my_type is dict
