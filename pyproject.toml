@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -50,7 +51,7 @@ packages = [
 trio_mode = "true"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.13"
+python = ">=3.8,<3.14"
 
 [tool.poetry.group.dev.dependencies]
 mypy = [
@@ -202,4 +203,5 @@ python =
     3.10: py310
     3.11: py311
     3.12: py312
+    3.13: py313
 """
