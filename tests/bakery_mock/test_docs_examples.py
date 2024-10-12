@@ -23,6 +23,12 @@ async def test_example_1(bakery_mock: BakeryMock) -> None:
         assert MyBakery().settings.dsn == "fake dsn"
 
 
+async def test_example_1_no_mock() -> None:
+    async with MyBakery(dsn="fake dsn"):  # <<< pass new dsn
+        assert MyBakery().dsn == "fake dsn"
+        assert MyBakery().settings.dsn == "fake dsn"
+
+
 async def test_example_2(bakery_mock: BakeryMock) -> None:
     await MyBakery.aopen()  # open bakery anywhere
 
@@ -40,4 +46,14 @@ async def test_example_3(bakery_mock: BakeryMock) -> None:
         cake_baking_method=BakingMethod.BAKE_NO_BAKE,
     )
     async with bakery_mock(MyBakery):
+        assert MyBakery().settings is list
+
+
+async def test_example_3_no_mock() -> None:
+    async with MyBakery(
+        settings=hand_made(  # type: ignore[arg-type]
+            Cake(list),
+            cake_baking_method=BakingMethod.BAKE_NO_BAKE,
+        )
+    ):
         assert MyBakery().settings is list
