@@ -220,7 +220,7 @@ To run this example, you will need to do the following:
    ```
    uvicorn test:MY_APP
    ```
-4. Open this address in the browser: [http://127.0.0.1:8000/docs#/default/create_person_person_random__get](http://127.0.0.1:8000/docs#/default/create_person_person_random__get)
+4. [Touch the link](http://127.0.0.1:8000/docs#/default/create_person_person_random__get) in the browser
 5. And don't forget to read the logs in the console
 
 For a more complete examples, see examples' [source code](https://github.com/Mityuha/fresh-bakery/tree/main/examples). Feel free to install dependencies and run examples locally!
