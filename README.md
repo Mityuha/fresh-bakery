@@ -42,228 +42,168 @@ $ pip3 install fresh-bakery
 
 ## Examples
 
-### Raw example
-In this example, you can see how to create a specific IoC container using the fresh bakery library in plain python code 
+### Quickstart
+This example is intended to show the nature of Dependency Injection and the ease of use the library. Many of us work 8 hours per day on average, 5 days a week, i.e. ~ 40 hours per week. Let's describe it using DI and bakery:
 ```python
-import asyncio
-
-from dataclasses import dataclass
 from bakery import Bakery, Cake
 
 
-# your dependecies
-@dataclass
-class Settings:
-    database_dsn: str
-    info_id_list: list[int]
+def full_days_in(hours: int) -> float:
+    return hours / 24
 
 
-class Database:
-    def __init__(self, dsn: str):
-        self.dsn: str = dsn
-
-    async def fetch_info(self, info_id: int) -> dict:
-        return {"dsn": self.dsn, "info_id": info_id}
+def average(total: int, num: int) -> float:
+    return total / num
 
 
-class InfoManager:
-    def __init__(self, database: Database):
-        self.database: Database = database
-
-    async def fetch_full_info(self, info_id: int) -> dict:
-        info: dict = await self.database.fetch_info(info_id)
-        info["full"] = True
-        return info
+class WorkingBakery(Bakery):
+    average_hours: int = Cake(8)
+    week_hours: int = Cake(sum, [average_hours, average_hours, 7, 9, average_hours])
+    full_days: float = Cake(full_days_in, week_hours)
 
 
-# specific ioc container, all magic happens here
-class MyBakeryIOC(Bakery):
-    settings: Settings = Cake(Settings, database_dsn="my_dsn", info_id_list=[1,2,3])
-    database: Database = Cake(Database, dsn=settings.database_dsn)
-    manager: InfoManager = Cake(InfoManager, database=database)
-
-
-# code in your application that needs those dependencies ↑
 async def main() -> None:
-    async with MyBakery() as bakery:
-        for info_id in bakery.settings.info_id_list:
-            info: dict = await bakery.manager.fetch_full_info(info_id)
-            assert info["dsn"] == bakery.settings.database_dsn
-            assert info["info_id"] == info_id
-            assert info["full"]
-
-
-# just a piece of service code
-if __name__ == "__main__":
-    asyncio.run(main())
+    async with WorkingBakery() as bakery:
+        assert bakery.week_hours == 40
+        assert bakery.full_days - 0.00001 < full_days_in(40)
+        assert int(bakery.average_hours) == 8
 ```
+You can see it's simple as it can be.
 
-### FastAPI example
-This is a full-fledged complex example of how you can use IoC with your FastAPI application:
+### One more example
+Let's suppose we have a thin wrapper around file object.
 ```python
-import asyncio
-import random
-import typing
+from typing import ClassVar, Final
 
-import bakery
-import fastapi
-import pydantic
-from loguru import logger
+from typing_extensions import Self
 
 
-# The following is a long and boring list of dependencies
-class PersonOut(pydantic.BaseModel):
-    """Person out."""
+class FileWrapper:
+    file_opened: bool = False
+    write_lines: ClassVar[list[str]] = []
 
-    first_name: str
-    second_name: str
-    age: int
-    person_id: int
+    def __init__(self, filename: str) -> None:
+        self.filename: Final = filename
 
+    def write(self, line: str) -> int:
+        type(self).write_lines.append(line)
+        return len(line)
 
-class FakeDbConnection:
-    """Fake db connection."""
-
-    def __init__(self, *_: typing.Any, **__: typing.Any):
-        ...
-
-
-class DatabaseFakeService:
-    """Fake database layer."""
-
-    def __init__(self, connection: FakeDbConnection) -> None:
-        # wannabe connection only for test purposes
-        self._connection: FakeDbConnection = connection
-
-    async def __aenter__(self) -> "DatabaseFakeService":
-        """On startup."""
+    def __enter__(self) -> Self:
+        type(self).file_opened = True
         return self
 
-    async def __aexit__(self, *_args: typing.Any) -> None:
-        """Wannabe shutdown."""
-        await asyncio.sleep(0)
-
-    async def fetch_person(
-        self, person_id: int
-    ) -> dict[typing.Literal['first_name', 'second_name', 'age', 'id'], str | int]:
-        """Fetch (fictitious) person."""
-        return {
-            'first_name': random.choice(('John', 'Danku', 'Ichigo', 'Sakura', 'Jugem', 'Ittō')),
-            'second_name': random.choice(( 'Dow', 'Kurosaki', 'Amaterasu', 'Kasō', 'HiryuGekizokuShintenRaiho')),
-            'age': random.randint(18, 120),
-            'id': person_id,
-        }
-
-
-class Settings(pydantic.BaseSettings):
-    """Service settings."""
-
-    postgres_dsn: pydantic.PostgresDsn = pydantic.Field(
-        default="postgresql://bakery_tester:bakery_tester@0.0.0.0:5432/bakery_tester"
-    )
-    postgres_pool_min_size: int = 5
-    postgres_pool_max_size: int = 20
-    controller_logger_name: str = "[Controller]"
-
-
-class ServiceController:
-    """Service controller."""
-
-    def __init__(
-        self,
-        *,
-        database: DatabaseFakeService,
-        logger_name: str,
-    ):
-        self._database = database
-        self._logger_name = logger_name
-
-    def __repr__(self) -> str:
-        return self._logger_name
-
-    async def fetch_person(self, person_id: int, /) -> PersonOut | None:
-        """Fetch person by id."""
-        person: typing.Mapping | None = await self._database.fetch_person(person_id)
-        if not person:
-            return None
-        res: PersonOut = PersonOut(
-            first_name=person["first_name"],
-            second_name=person["second_name"],
-            age=person["age"],
-            person_id=person_id,
-        )
-        return res
-
-
-def get_settings() -> Settings:
-    """Get settings."""
-    return Settings()
-
-
-# Here is your specific IoC container
-class MainBakeryIOC(bakery.Bakery):
-    """Main bakery."""
-
-    config: Settings = bakery.Cake(get_settings)
-    _connection: FakeDbConnection = bakery.Cake(
-        FakeDbConnection,
-        config.postgres_dsn,
-        min_size=config.postgres_pool_min_size,
-        max_size=config.postgres_pool_max_size,
-    )
-    database: DatabaseFakeService = bakery.Cake(
-        bakery.Cake(
-            DatabaseFakeService,
-            connection=_connection,
-        )
-    )
-    controller: ServiceController = bakery.Cake(
-        ServiceController,
-        database=database,
-        logger_name=config.controller_logger_name,
-    )
-
-
-async def startup() -> None:
-    logger.info("Init resources...")
-    bakery.logger = logger
-    await MainBakeryIOC.aopen()
-
-
-async def shutdown() -> None:
-    logger.info("Shutdown resources...")
-    await MainBakeryIOC.aclose()
-
-
-MY_APP: fastapi.FastAPI = fastapi.FastAPI(
-    on_startup=[startup],
-    on_shutdown=[shutdown],
-)
-
-
-# Finally, an example of how you can use your dependencies
-@MY_APP.get('/person/random/')
-async def create_person(
-    inversed_controller: ServiceController = fastapi.Depends(MainBakeryIOC.controller),
-) -> PersonOut | None:
-    """Fetch random person from the «database»."""
-    person_id: typing.Final[int] = random.randint(10**1, 10**6)
-    return await inversed_controller.fetch_person(person_id)
+    def __exit__(self, *_args: object) -> None:
+        type(self).file_opened = False
+        type(self).write_lines.clear()
 ```
-To run this example, you will need to do the following:
-1. Install dependencies:
-    ```
-    pip install uvicorn fastapi loguru fresh-bakery
-    ```
-1. Save the example text to the file test.py
-1. Run uvicorn
-   ```
-   uvicorn test:MY_APP
-   ```
-1. Open this address in the browser: http://127.0.0.1:8000/docs#/default/create_person_person_random__get
-1. And don't forget to read the logs in the console
+This wrapper acts exactly like a file object: it can be opened, closed, and can write line to file.
+Let's open file `hello.txt`, write 2 lines into it and close it. Let's do all this with the bakery syntax:
+```python
+from bakery import Bakery, Cake
 
-For a more complete examples, see [bakery examples](https://github.com/Mityuha/fresh-bakery/tree/main/examples).
+
+class FileBakery(Bakery):
+    _file_obj: FileWrapper = Cake(FileWrapper, "hello.txt")
+    file_obj: FileWrapper = Cake(_file_obj)
+    write_1_bytes: int = Cake(file_obj.write, "hello, ")
+    write_2_bytes: int = Cake(file_obj.write, "world")
+
+
+async def main() -> None:
+    assert FileWrapper.file_opened is False
+    assert FileWrapper.write_lines == []
+    async with FileBakery() as bakery:
+        assert bakery.file_obj.filename == "hello.txt"
+        assert FileWrapper.file_opened is True
+        assert FileWrapper.write_lines == ["hello, ", "world"]
+
+    assert FileWrapper.file_opened is False
+    assert FileWrapper.write_lines == []
+```
+Maybe you noticed some strange things concerning `FileBakery` bakery:
+1. `_file_obj` and `file_obj` objects. Do we need them both?
+2. Unused `write_1_bytes` and `write_2_bytes` objects. Do we need them?
+
+Let's try to fix both cases. First, why do we need `_file_obj` and `file_obj` objects?
+- The first `Cake` initiates `FileWrapper` object, i.e. calls `__init__` method;
+- the second `Cake` calls context-manager, i.e. `__enter__` method.
+
+Actually, we can merge these two statements into single one:
+```python
+# class FileBakery(Bakery):
+    file_obj: FileWrapper = Cake(Cake(FileWrapper, "hello.txt"))
+```
+What about unused arguments? OK, let's re-write this gist a little bit. First, let's declare the list of strings we want to write:
+```python
+# class FileBakery(Bakery):
+    strs_to_write: list[str] = Cake(["hello, ", "world"])
+```
+How to apply function to every string in this list? There are several ways to do it and one of these is built-in [`map`](https://docs.python.org/3/library/functions.html#map) function.
+```python
+map_cake = Cake(map, file_obj.write, strs_to_write)
+```
+But `map` function returns iterator and we need to yield from it. Let's apply `list` function to do it.
+```python
+list_cake = Cake(list, map_cake)
+```
+In the same manner as we did with `file_obj` let's merge these two statements into one. The final `FileBakery` will be look like this:
+```python
+class FileBakeryMap(Bakery):
+    file_obj: FileWrapper = Cake(Cake(FileWrapper, "hello.txt"))
+    strs_to_write: list[str] = Cake(["hello, ", "world"])
+    _: list[int] = Cake(list, Cake(map, file_obj.write, strs_to_write))
+```
+The last thing nobody likes is hard-coded strings! In this case such strings are:
+- the name of the file `hello.txt`
+- list of strings to write: `hello, ` and `world`
+
+What if we've got another filename or other strings to write? Let's define filename and list of strings to write as `FileBakery` parameters:
+```python
+from bakery import Bakery, Cake, __Cake__
+
+
+class FileBakery(Bakery):
+    filename: str = __Cake__()
+    strs_to_write: list[str] = __Cake__()
+    file_obj: FileWrapper = Cake(Cake(FileWrapper, filename))
+    _: list[int] = Cake(list, Cake(map, file_obj.write, strs_to_write))
+```
+To define parameters one can use dunder-cake construction: `__Cake__()`.   
+To pass arguments into `FileBakery` one can you native python syntax:
+```python
+async def main() -> None:
+    ...
+    async with FileBakeryMapWithParams(
+        filename="hello.txt", strs_to_write=["hello, ", "world"]
+    ) as bakery:
+        ...
+```
+and the whole example will look like this:
+```python
+from bakery import Bakery, Cake, __Cake__
+
+
+class FileBakery(Bakery):
+    filename: str = __Cake__()
+    strs_to_write: list[str] = __Cake__()
+    file_obj: FileWrapper = Cake(Cake(FileWrapper, filename))
+    _: list[int] = Cake(list, Cake(map, file_obj.write, strs_to_write))
+
+
+async def main() -> None:
+    assert FileWrapper.file_opened is False
+    assert FileWrapper.write_lines == []
+    async with FileBakeryMapWithParams(
+        filename="hello.txt", strs_to_write=["hello, ", "world"]
+    ) as bakery:
+        assert bakery.file_obj.filename == "hello.txt"
+        assert FileWrapper.file_opened is True
+        assert FileWrapper.write_lines == ["hello, ", "world"]
+
+    assert FileWrapper.file_opened is False
+    assert FileWrapper.write_lines == []
+```
 
 ## Dependencies
 
