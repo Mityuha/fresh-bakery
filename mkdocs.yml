@@ -10,6 +10,7 @@ repo_url: https://github.com/mityuha/fresh-bakery
 nav:
     - Introduction: 'index.md'
     - Bakery examples: 'bakery_examples.md'
+    - Bakery DI: 'bakery_di.md'
     - Bakery and Cakes: 'bakery_and_cakes.md'
     - Baking Methods: 'baking_methods.md'
     - Test Bakery: 'test_bakery.md'
