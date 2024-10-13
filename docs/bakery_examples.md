@@ -215,7 +215,7 @@ To run this example, you will need to do the following:
     ```
     pip install uvicorn fastapi loguru fresh-bakery pydantic pydantic-settings
     ```    
-2. Save the example text to the file test.py    
+2. Save the example text to the file `test.py`    
 3. Run uvicorn
    ```
    uvicorn test:MY_APP
