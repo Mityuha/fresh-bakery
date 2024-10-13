@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 
 from bakery import Bakery, Cake
@@ -46,7 +45,3 @@ async def test_raw_example() -> None:
             assert info["dsn"] == bakery.settings.database_dsn
             assert info["info_id"] == info_id
             assert info["full"]
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
