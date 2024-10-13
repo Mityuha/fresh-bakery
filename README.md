@@ -172,16 +172,22 @@ class FileBakery(Bakery):
 To define parameters you can use dunder-cake construction: `__Cake__()`.   
 To pass arguments into `FileBakery` you can use native python syntax:
 ```python
-async def main() -> None:
-    ...
+# async def main() -> None:
     async with FileBakeryMapWithParams(
         filename="hello.txt", strs_to_write=["hello, ", "world"]
     ) as bakery:
         ...
 ```
-and the whole example will look like this:
+And the whole example will look like this:
 ```python
+from typing import ClassVar, Final
+
+from typing_extensions import Self
+
 from bakery import Bakery, Cake, __Cake__
+
+
+# class FileWrapper: ...
 
 
 class FileBakery(Bakery):
