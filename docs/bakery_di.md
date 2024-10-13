@@ -4,10 +4,10 @@
     New in version 0.4.2
 
 
-Fresh bakery provides a DI mechanism. And sometimes it's very convenient to structure your application so that different modules have their own bakeries.     
+Fresh bakery provides a Dependency Injection (DI) mechanism. And sometimes it's very convenient to structure your application so that different modules have their own bakeries.     
 Even more: sometimes it's really convenient to initiate modules over their bakeries. 
 If so, why don't pass arguments to such bakeries?     
-Let's suppose we have Resource Owner Password Authentication Flow: we have to receive token by (username, password) tuple. 
+Let's suppose we have Resource Owner Password Authentication Flow: we have to receive token by (username, password) credentials. 
 
 ```python
 from typing import Final, Iterator
@@ -40,7 +40,7 @@ class AuthBakery(Bakery):
 
     auth: IntranetAuth = Cake(IntranetAuth, auth_url, login=username, password=password)
 ```
-Also we have a client to receive user info
+Also we have a client to receive user info:
 ```python
 from typing import Final
 
@@ -55,7 +55,7 @@ class UserClient:
         resp = self.client.get(f"/api/v1/users/{user_id}")
         return resp.json()
 ```
-and bakery for this client
+and bakery for this client:
 ```python
 from httpx import Auth, Client
 
@@ -68,16 +68,16 @@ class UserClientBakery(Bakery):
     http_client: Client = Cake(Cake(Client, base_url=base_url, auth=auth))
     client: UserClient = Cake(UserClient, http_client)
 ```
-We can see to initiate `AuthBakery` we need
+We can see to initiate `AuthBakery` we need:     
 - Authentication url `auth_url`
 - `username`
 - `password`
 
-To initiate `UserClientBakery` we need:
+To initiate `UserClientBakery` we need:     
 - Url to go: `base_url`
 - authentication `auth`
 
-All right, let's glue all this over 3rd `ApplicationBakery` bakery:
+All right, let's glue those two bakeries over 3rd `ApplicationBakery` bakery:
 ```python
 from bakery import Bakery, Cake
 
@@ -102,7 +102,7 @@ async def main() -> None:
     async with ApplicationBakery(auth_url="https://google.com") as bakery:
         ...
 ```
-The complete example can look like this
+The complete example can look like this:
 ```python
 import asyncio
 from typing import Final, Iterator
