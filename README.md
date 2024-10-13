@@ -126,28 +126,28 @@ Maybe you noticed some strange things concerning `FileBakery` bakery:
 2. Unused `write_1_bytes` and `write_2_bytes` objects. Do we need them?
 
 Let's try to fix both cases. First, why do we need `_file_obj` and `file_obj` objects?
-- The first `Cake` initiates `FileWrapper` object, i.e. calls `__init__` method;
-- the second `Cake` calls context-manager, i.e. `__enter__` method.
+- The first `Cake` for `_file_obj` initiates `FileWrapper` object, i.e. calls `__init__` method;
+- the second `Cake` for `file_obj` calls context-manager, i.e. `__enter__` method.
 
 Actually, we can merge these two statements into single one:
 ```python
 # class FileBakery(Bakery):
     file_obj: FileWrapper = Cake(Cake(FileWrapper, "hello.txt"))
 ```
-What about unused arguments? OK, let's re-write this gist a little bit. First, let's declare the list of strings we want to write:
+So, what about unused arguments? OK, let's re-write this gist a little bit. First, let's declare the list of strings we want to write:
 ```python
 # class FileBakery(Bakery):
     strs_to_write: list[str] = Cake(["hello, ", "world"])
 ```
-How to apply function to every string in this list? There are several ways to do it and one of these is built-in [`map`](https://docs.python.org/3/library/functions.html#map) function.
+How to apply function to every string in this list? There are several ways to do it. One of them is built-in [`map`](https://docs.python.org/3/library/functions.html#map) function.
 ```python
 map_cake = Cake(map, file_obj.write, strs_to_write)
 ```
-But `map` function returns iterator and we need to yield from it. Let's apply `list` function to do it.
+But `map` function returns iterator and we need to get elements from it. Built-in [`list`](https://docs.python.org/3/library/functions.html#func-list) function will do the job.
 ```python
 list_cake = Cake(list, map_cake)
 ```
-In the same manner as we did with `file_obj` let's merge these two statements into one. The final `FileBakery` will be look like this:
+In the same manner as we did for `file_obj` let's merge these two statements into one. The final `FileBakery` will look like this:
 ```python
 class FileBakeryMap(Bakery):
     file_obj: FileWrapper = Cake(Cake(FileWrapper, "hello.txt"))
@@ -158,7 +158,7 @@ The last thing nobody likes is hard-coded strings! In this case such strings are
 - the name of the file `hello.txt`
 - list of strings to write: `hello, ` and `world`
 
-What if we've got another filename or other strings to write? Let's define filename and list of strings to write as `FileBakery` parameters:
+What if we've got another filename or other strings to write? Let's define filename and list of strings as `FileBakery` parameters:
 ```python
 from bakery import Bakery, Cake, __Cake__
 
@@ -169,8 +169,8 @@ class FileBakery(Bakery):
     file_obj: FileWrapper = Cake(Cake(FileWrapper, filename))
     _: list[int] = Cake(list, Cake(map, file_obj.write, strs_to_write))
 ```
-To define parameters one can use dunder-cake construction: `__Cake__()`.   
-To pass arguments into `FileBakery` one can you native python syntax:
+To define parameters you can use dunder-cake construction: `__Cake__()`.   
+To pass arguments into `FileBakery` you can use native python syntax:
 ```python
 async def main() -> None:
     ...
@@ -204,6 +204,7 @@ async def main() -> None:
     assert FileWrapper.file_opened is False
     assert FileWrapper.write_lines == []
 ```
+More examples are presented in section [bakery examples](https://fresh-bakery.readthedocs.io/en/latest/bakery_examples/).
 
 ## Dependencies
 
