@@ -68,7 +68,7 @@ async def main() -> None:
         assert bakery.full_days - 0.00001 < full_days_in(40)
         assert int(bakery.average_hours) == 8
 ```
-You can see it's simple as it can be.
+You can see it's as simple as it can be.
 
 ### One more example
 Let's suppose we have a thin wrapper around file object.
@@ -125,9 +125,9 @@ Maybe you noticed some strange things concerning `FileBakery` bakery:
 1. `_file_obj` and `file_obj` objects. Do we need them both?
 2. Unused `write_1_bytes` and `write_2_bytes` objects. Do we need them?
 
-Let's try to fix both cases. First, why do we need `_file_obj` and `file_obj` objects?
+Let's try to fix both cases. First, let's figure out why do we need `_file_obj` and `file_obj` objects?
 - The first `Cake` for `_file_obj` initiates `FileWrapper` object, i.e. calls `__init__` method;
-- the second `Cake` for `file_obj` calls context-manager, i.e. `__enter__` method.
+- the second `Cake` for `file_obj` calls context-manager, i.e. calls `__enter__` method on enter and `__exit__` method on exit.
 
 Actually, we can merge these two statements into single one:
 ```python
