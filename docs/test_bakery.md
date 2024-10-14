@@ -18,7 +18,7 @@ class MyBakery(Bakery):
 Let's consider two approaches for bakery testing: framework agnostic and pytest related approaches.
 
 ## Framework agnostic approach
-Use can override any bakery member by passing argument for it to bakery:
+You can override any bakery member by passing argument for it to bakery:
 ```python
 from .example import MyBakery
 
