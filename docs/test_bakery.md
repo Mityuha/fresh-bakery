@@ -18,7 +18,7 @@ class MyBakery(Bakery):
 Let's consider two approaches for bakery testing: framework agnostic and pytest related approaches.
 
 ## Framework agnostic approach
-Use can override any bakery member by passing arguments to bakery:
+Use can override any bakery member by passing argument for it to bakery:
 ```python
 from .example import MyBakery
 
@@ -48,7 +48,7 @@ async def test_example_1_cant_pass_after_open() -> None:
 If for some reason you need to override bakery's member **after** opening, please use pytest related approach.
 
 ## Pytest related approach
-Fresh Bakery appreciate the usage of pytest framework: you can use `bakery_mock` fixture out of the box.
+Fresh Bakery appreciate the usage of pytest framework: you can use `bakery_mock` fixture out-of-the-box.
 
 !!! note
     To use `bakery_mock` fixture you have to also install pytest-mock library (besides pytest itself):
