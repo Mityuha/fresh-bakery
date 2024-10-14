@@ -4,14 +4,17 @@ __all__ = [
     "CakeRecipe",
     "Cakeable",
     "FictionalPiece",
+    "is_undefined",
 ]
 
 from inspect import Signature
 from typing import (
     TYPE_CHECKING,
     Any,
+    Final,
     Protocol,
     TypeVar,
+    final,
 )
 
 if TYPE_CHECKING:
@@ -46,7 +49,7 @@ class PieceProto(Protocol):
         """some_cake["key"]."""
 
     def __call__(self) -> Any:
-        """Get cake."""
+        """some_cake()."""
 
 
 class Cakeable(Protocol[T_co]):
@@ -87,3 +90,14 @@ class Cakeable(Protocol[T_co]):
         exc_value: BaseException | None,
         traceback: types.TracebackType | None,
     ) -> None: ...
+
+
+@final
+class _Undefined: ...
+
+
+UNDEFINED: Final = _Undefined()
+
+
+def is_undefined(obj: Any) -> bool:
+    return obj is UNDEFINED
