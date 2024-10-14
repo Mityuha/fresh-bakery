@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+import pytest
+
 from bakery import Bakery, BakingMethod, Cake, hand_made
 from bakery.testbakery import BakeryMock
 
@@ -27,6 +29,16 @@ async def test_example_1_no_mock() -> None:
     async with MyBakery(dsn="fake dsn"):  # <<< pass new dsn
         assert MyBakery().dsn == "fake dsn"
         assert MyBakery().settings.dsn == "fake dsn"
+
+
+async def test_example_1_cant_pass_after_open() -> None:
+    await MyBakery.aopen()
+
+    with pytest.raises(TypeError):
+        async with MyBakery(dsn="fake dsn"):  # <<< passing new arguments after open is prohibited
+            ...
+
+    await MyBakery.aclose()
 
 
 async def test_example_2(bakery_mock: BakeryMock) -> None:
