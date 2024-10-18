@@ -17,7 +17,7 @@
 Fresh bakery is a lightweight [Dependency Injection][DI] framework/toolkit,
 which is ideal for building object dependencies in Python.
 
-It is [nearly] production-ready, and gives you the following:
+It is [fully] production-ready, and gives you the following:
 
 * A lightweight, stupidly simple DI framework.
 * Fully asynchronous, no synchronous mode.

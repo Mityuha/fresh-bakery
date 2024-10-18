@@ -69,15 +69,15 @@ class UserClientBakery(Bakery):
     client: UserClient = Cake(UserClient, http_client)
 ```
 We can see to initiate `AuthBakery` we need:     
-- Authentication url `auth_url`
-- `username`
-- `password`
+- Authentication url `auth_url`     
+- `username`    
+- `password`     
 
 To initiate `UserClientBakery` we need:     
-- Url to go: `base_url`
-- authentication `auth`
+- Url to go: `base_url`     
+- authentication `auth`     
 
-All right, let's glue those two bakeries over 3rd `ApplicationBakery` bakery:
+All right, let's glue those two bakeries over 3rd `ApplicationBakery` bakery:     
 ```python
 from bakery import Bakery, Cake
 
