@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "docs_bakery_di"
+version = "0.0.1"
+description = "Real bakery tests"
+authors = ["Dmitry Makarov"]
+classifiers = ["Programming Language :: Python :: 3.12"]
+
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+httpx = "*"
+loguru = "*"
+fresh-bakery = {path = "../.."}
+
+[tool.poetry.dev-dependencies]
+ruff = "*"
+
+[tool.mypy]
+plugins = "bakery.mypy"

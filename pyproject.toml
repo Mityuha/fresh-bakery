@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.4.1"
+version = "0.4.2"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"

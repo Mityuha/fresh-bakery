@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "docs_fastapi"
+version = "0.0.1"
+description = "Real bakery tests"
+authors = ["Dmitry Makarov"]
+classifiers = ["Programming Language :: Python :: 3.12"]
+
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.13"
+fastapi = "*"
+uvicorn = "*"
+loguru = "*"
+pydantic = ">2.0"
+fresh-bakery = {path = "../.."}
+pydantic-settings = "^2.5.2"
+
+[tool.poetry.dev-dependencies]
+ruff = "*"
+
+[tool.mypy]
+plugins = "bakery.mypy"
