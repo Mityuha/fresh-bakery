@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fresh-bakery"
-version = "0.4.2"
+version = "0.4.3"
 description = "Bake your dependencies stupidly simple!"
 readme = "README.md"
 license = "MIT"
@@ -136,7 +136,7 @@ ignore = [
     "D203",
     "COM812",
     "ISC001",
-    "D413"
+    "D413",
 ]
 fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -176,7 +176,7 @@ omit = [
 legacy_tox_ini = """
 [tox]
 isolated_build = True
-envlist = py38,py39,py310,py311,py312
+envlist = py38,py39,py310,py311,py312,py313
 
 [testenv]
 deps =
