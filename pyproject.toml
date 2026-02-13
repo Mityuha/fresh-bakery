@@ -136,7 +136,6 @@ ignore = [
     "COM812",
     "ISC001",
     "D413",
-    "RUF101",
 ]
 fixable = ["ALL"]
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -180,13 +179,13 @@ envlist = py310,py311,py312,py313,py314
 
 [testenv]
 deps =
-    pytest>=8.3.3
-    pytest-mock==3.14.0
-    typing_extensions==4.12.2
+    pytest>=9.0.2
+    pytest-mock==3.15.1
+    typing_extensions==4.15.0
     pytest-trio==0.8.0
 
-    mypy==1.11.2
-    ruff==0.6.5
+    mypy==1.19.1
+    ruff==0.15.1
 
 commands =
     ruff check .
