@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import sys
 import types
-from collections.abc import AsyncIterator, Callable, Iterator
 from dataclasses import dataclass
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     cast,
@@ -18,6 +18,9 @@ import pytest
 from bakery import Bakery, Cake, PieceOfCake, bake, cake_name, is_baked, unbake
 
 from . import aclosing
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Callable, Iterator
 
 
 async def test_simple_bakery1() -> None:
@@ -108,7 +111,7 @@ async def test_simple_bakery2() -> None:
     await MyPC.aclose()
 
     for recipe, _ in recipe_expected:
-        with pytest.raises(ValueError, match="is not baked. Just bake it!"):
+        with pytest.raises(ValueError, match=r"is not baked. Just bake it!"):
             _ = recipe()
 
 
@@ -127,7 +130,7 @@ async def test_simple_recipe1() -> None:
     async with recipe1 as box:  # type: ignore[attr-defined]
         assert box.desc == desc
 
-        piece_of_cake: PieceOfCake = cast(PieceOfCake, recipe1.desc)
+        piece_of_cake: PieceOfCake = cast("PieceOfCake", recipe1.desc)
         assert piece_of_cake() == desc
 
     with pytest.raises(ValueError, match=f"{recipe1} is not baked. Just bake it!"):
@@ -224,7 +227,7 @@ async def test_complex_bakery1() -> None:
 
     await MyHome.aclose()
 
-    with pytest.raises(ValueError, match="Cake 'home' is not baked. Just bake it!"):
+    with pytest.raises(ValueError, match=r"Cake 'home' is not baked. Just bake it!"):
         _ = MyHome.home.pcomp.cpu.core()
 
 
@@ -290,7 +293,7 @@ async def test_complex_bakery2() -> None:
 
     await MyHome.aclose()
 
-    with pytest.raises(ValueError, match="Cake 'home' is not baked. Just bake it!"):
+    with pytest.raises(ValueError, match=r"Cake 'home' is not baked. Just bake it!"):
         _ = MyHome.home.pcomp.cpus[0].cores["core"]()
 
 
@@ -302,7 +305,7 @@ async def test_closed_bakery() -> None:
 
         browny: str = Cake("browny")
 
-    with pytest.raises(ValueError, match="Cake 'browny' is not baked. Just bake it!"):
+    with pytest.raises(ValueError, match=r"Cake 'browny' is not baked. Just bake it!"):
         _ = MyBakery().browny
 
     async with MyBakery():
@@ -333,7 +336,7 @@ async def async_gen() -> AsyncIterator:
         False,
         bytearray([1, 2]),
         bytes(1),
-        classmethod(cast(Callable, lambda: 1)),
+        classmethod(cast("Callable", lambda: 1)),
         complex(1, 2),
         {"a": 1},
         1.1,
@@ -342,7 +345,7 @@ async def async_gen() -> AsyncIterator:
         [1, 2],
         (x for x in [1, 2]),
         memoryview(b""),
-        property(cast(Callable, lambda: 1)),
+        property(cast("Callable", lambda: 1)),
         range(1, 2),
         set({1, 2}),
         slice(1, 2),
@@ -350,7 +353,7 @@ async def async_gen() -> AsyncIterator:
         "123",
         super(object),
         (1, 2),
-        zip([], []),
+        zip([], [], strict=False),
         None,
         Ellipsis,
         async_gen(),

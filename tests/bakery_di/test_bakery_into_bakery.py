@@ -47,7 +47,7 @@ class AppBakery(Bakery):
 
 async def test_di_http_client() -> None:
     username: str = "[masked_username]"
-    password: str = "[masked_password]"
+    password: str = "[masked_password]"  # noqa: S105
     base_url: str = "[masked_url]"
 
     auth: Auth

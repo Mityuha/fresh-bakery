@@ -9,16 +9,13 @@ __all__ = [
 ]
 
 import types
+from collections.abc import Iterable, Iterator, Mapping
 from copy import copy
 from typing import (
     Any,
     Final,
-    Iterable,
-    Iterator,
-    Mapping,
+    TypeGuard,
 )
-
-from typing_extensions import TypeGuard
 
 from .cake_stuff import is_cake_or_piece
 from .types import CakeRecipe, FictionalPiece

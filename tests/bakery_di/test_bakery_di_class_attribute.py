@@ -37,7 +37,7 @@ class AppBakery(Bakery):
 
 async def test_bakery_di_class_attribute() -> None:
     username: str = "[masked_username_2]"
-    password: str = "[masked_password_2]"
+    password: str = "[masked_password_2]"  # noqa: S105
     base_url: str = "[masked_url_2]"
 
     async with AppBakery(username=username, password=password, base_url=base_url) as bakery:

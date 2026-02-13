@@ -7,18 +7,13 @@ from __future__ import annotations
 
 __all__ = ["Cake", "Pastry", "__Cake__", "hand_made"]
 
-from contextlib import contextmanager
+from contextlib import AbstractAsyncContextManager, AbstractContextManager, contextmanager
 from copy import deepcopy
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncContextManager,
-    Awaitable,
-    Callable,
-    ContextManager,
     Final,
     Generic,
-    Iterator,
     Literal,
     TypeVar,
     cast,
@@ -43,6 +38,7 @@ from .stuff import (
 from .stuff.types import UNDEFINED
 
 if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable, Iterator
     from types import TracebackType
 
 
@@ -238,7 +234,7 @@ class Pastry(CakeRecipe, Generic[R]):
 
         recipe = self.__cake_recipe
         if is_cake_or_piece(recipe):
-            recipe = recipe()
+            recipe = recipe()  # type: ignore[operator]
 
         if not self.__cake_baking_method:
             self.__cake_baking_method = determine_baking_method(recipe)
@@ -317,11 +313,11 @@ def Cake(recipe: Awaitable[T]) -> T: ...
 
 
 @overload
-def Cake(recipe: AsyncContextManager[T]) -> T: ...
+def Cake(recipe: AbstractAsyncContextManager[T]) -> T: ...
 
 
 @overload
-def Cake(recipe: ContextManager[T]) -> T: ...
+def Cake(recipe: AbstractContextManager[T]) -> T: ...
 
 
 @overload
@@ -351,7 +347,7 @@ def Cake(  # waiting for issue to close  # noqa: N802
     **recipe_kwargs: Any,
 ) -> T:
     return cast(
-        T,
+        "T",
         Pastry(recipe, *recipe_args, **recipe_kwargs),
     )
 

@@ -1,50 +1,53 @@
 from __future__ import annotations
 
 __all__ = [
+    "_LOGGER",
     "BakeryLogger",
     "CakeRecipe",
     "DefaultLogger",
-    "_LOGGER",
 ]
 
 from datetime import datetime
 from functools import partial
-from typing import Any, Callable, Final, Protocol
+from typing import TYPE_CHECKING, Any, Final, Protocol
 
 import bakery
 
 from .types import CakeRecipe
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 class BakeryLogger(Protocol):
     """Bakery logger."""
 
-    def debug(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def debug(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Debug."""
 
-    def info(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def info(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Info."""
 
-    def warning(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def warning(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Warning."""
 
-    def error(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def error(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Error."""
 
 
 class DummyLogger:
     """Dummy logger."""
 
-    def debug(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def debug(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Debug."""
 
-    def info(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def info(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Info."""
 
-    def warning(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def warning(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Warning."""
 
-    def error(self, __message: str, *args: Any, **kwargs: Any) -> None:
+    def error(self, message: str, /, *args: Any, **kwargs: Any) -> None:
         """Error."""
 
 

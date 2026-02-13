@@ -7,7 +7,10 @@ from __future__ import annotations
 
 __all__ = ["Bakery"]
 
-from typing import Any, AsyncContextManager, ContextManager, Protocol, TypeVar
+from contextlib import AbstractAsyncContextManager, AbstractContextManager
+from typing import Any, Protocol, TypeVar
+
+from typing_extensions import Self
 
 from .baking import BakingMethod
 from .cake import Cake
@@ -17,7 +20,7 @@ from .stuff import is_cake
 T = TypeVar("T", bound="Bakery")
 
 
-class Cakeable(Protocol, AsyncContextManager):
+class Cakeable(Protocol, AbstractAsyncContextManager):
     def __set_name__(self, _: Any, name: str) -> None: ...
     @property
     def __cake_name__(self) -> str: ...
@@ -29,15 +32,15 @@ class Cakeable(Protocol, AsyncContextManager):
         *_cake_recipe_args: Any,
         _cake_baking_method: BakingMethod,
         **_cake_recipe_kwargs: Any,
-    ) -> ContextManager[Cakeable]: ...
+    ) -> AbstractContextManager[Cakeable]: ...
 
 
-def replace_cakes(cakes: dict[str, ContextManager]) -> None:
+def replace_cakes(cakes: dict[str, AbstractContextManager]) -> None:
     for replacement in cakes.values():
         replacement.__enter__()
 
 
-def unreplace_cakes(cakes: dict[str, ContextManager]) -> None:
+def unreplace_cakes(cakes: dict[str, AbstractContextManager]) -> None:
     for replacement in reversed(cakes.values()):
         replacement.__exit__(None, None, None)
 
@@ -49,7 +52,7 @@ class Bakery:
 
     __bakery_visitors__: int
     __bakery_items__: dict[str, Cakeable]
-    __bakery_replaced_cakes__: dict[str, ContextManager]
+    __bakery_replaced_cakes__: dict[str, AbstractContextManager]
 
     def __init__(self, **kwargs: Any) -> None:
         cls = type(self)
@@ -92,7 +95,7 @@ class Bakery:
                 _cake_baking_method=cake_baking_method,
             )
 
-    async def __aenter__(self: T) -> T:
+    async def __aenter__(self) -> Self:
         return await type(self).aopen()
 
     async def __aexit__(self, *_args: object) -> None:
@@ -129,7 +132,7 @@ class Bakery:
         cls.__bakery_replaced_cakes__ = {}
 
     @classmethod
-    async def aopen(cls: type[T]) -> T:
+    async def aopen(cls) -> Self:
         if cls.__bakery_visitors__:
             cls.__bakery_visitors__ += 1
             # no concurrency yet (like aopen/aopen/aopen)
@@ -200,7 +203,7 @@ class Bakery:
         ):
             try:
                 await cake.__aexit__(exc_type, exc_value, traceback)
-            except (Exception, BaseException) as exc:  # noqa: PERF203
+            except (Exception, BaseException) as exc:  # noqa: PERF203, BLE001
                 exceptions.append(exc)
 
         unreplace_cakes(cls.__bakery_replaced_cakes__)

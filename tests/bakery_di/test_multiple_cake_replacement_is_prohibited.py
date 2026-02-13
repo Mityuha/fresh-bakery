@@ -12,7 +12,7 @@ async def test_multiple_cake_replacement_is_prohibited() -> None:
 
     async with MyPC(cpu_1=CPU(core_num=8, manufacturer="Intel")) as pc:
         with pytest.raises(
-            TypeError, match=".* initialized multiple times with keyword argument.*"
+            TypeError, match=r".* initialized multiple times with keyword argument.*"
         ):
             async with MyPC(cpu_1=CPU(core_num=1, manufacturer="AMD")):
                 ...

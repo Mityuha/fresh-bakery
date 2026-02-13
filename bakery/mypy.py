@@ -6,13 +6,15 @@ Make cakeable all bakery items.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Final
+from typing import TYPE_CHECKING, Final
 
 from mypy.plugin import AttributeContext, Plugin
 from mypy.types import CallableType, Instance
 from mypy.types import Type as MypyType
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from mypy.options import Options
 
 BAKERY_FULLNAME: Final[str] = "bakery.bakery.Bakery"

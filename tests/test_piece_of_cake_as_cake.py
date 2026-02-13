@@ -3,9 +3,10 @@
 https://github.com/Mityuha/fresh-bakery/issues/13.
 """
 
+from collections.abc import AsyncIterator, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Iterator
+from typing import Any
 
 from bakery import Bakery, BakingMethod, Cake, hand_made, unbake
 

@@ -10,9 +10,10 @@ __all__ = [
     "determine_baking_method",
     "unbake",
 ]
+from contextlib import AbstractAsyncContextManager, AbstractContextManager
 from enum import IntEnum, auto
 from inspect import isawaitable, iscoroutinefunction
-from typing import Any, AsyncContextManager, ContextManager, Final, TypeVar
+from typing import TYPE_CHECKING, Any, Final, TypeVar
 
 from .stuff import _LOGGER as logger  # noqa: N811
 from .stuff import (
@@ -21,6 +22,9 @@ from .stuff import (
     is_undefined,
     replace_cakes,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class BakingMethod(IntEnum):
@@ -34,13 +38,13 @@ class BakingMethod(IntEnum):
     BAKE_NO_BAKE = auto()
 
 
-BAKING_METHODS: Final = {
-    BakingMethod.BAKE_FROM_CALL: lambda _recipe: callable(_recipe),
-    BakingMethod.BAKE_FROM_CM: lambda _recipe: isinstance(_recipe, ContextManager),
-    BakingMethod.BAKE_FROM_ACM: lambda _recipe: isinstance(_recipe, AsyncContextManager),
+BAKING_METHODS: Final[dict[BakingMethod, Callable[[Any], bool]]] = {
+    BakingMethod.BAKE_FROM_CALL: callable,
+    BakingMethod.BAKE_FROM_CM: lambda _recipe: isinstance(_recipe, AbstractContextManager),
+    BakingMethod.BAKE_FROM_ACM: lambda _recipe: isinstance(_recipe, AbstractAsyncContextManager),
     BakingMethod.BAKE_FROM_BUILTIN: lambda _recipe: isinstance(_recipe, BUILTIN_TYPES),
-    BakingMethod.BAKE_FROM_CORO_FUNC: lambda _recipe: iscoroutinefunction(_recipe),
-    BakingMethod.BAKE_FROM_AWAITABLE: lambda _recipe: isawaitable(_recipe),
+    BakingMethod.BAKE_FROM_CORO_FUNC: iscoroutinefunction,
+    BakingMethod.BAKE_FROM_AWAITABLE: isawaitable,
     BakingMethod.BAKE_NO_BAKE: lambda _recipe: True,
 }
 
@@ -129,7 +133,7 @@ async def bake_recipe(
     cake_name: str,
 ) -> Any:
     if baking_method not in METHOD_2_HOW_TO_BAKE:
-        msg = f"{cake_name}: Unknown baking method '{baking_method}' " f"for recipe {recipe}"
+        msg = f"{cake_name}: Unknown baking method '{baking_method}' for recipe {recipe}"
         raise ValueError(msg)
 
     return await METHOD_2_HOW_TO_BAKE[baking_method](
@@ -142,12 +146,12 @@ async def bake_recipe(
 T = TypeVar("T")
 
 
-async def bake(cake: AsyncContextManager[T]) -> T:
+async def bake(cake: AbstractAsyncContextManager[T]) -> T:
     return await cake.__aenter__()
 
 
 async def unbake(
-    cake: AsyncContextManager[T],
+    cake: AbstractAsyncContextManager[T],
     exc_type: type | None = None,
     exc_value: BaseException | None = None,
     traceback: Any | None = None,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import warnings
 from inspect import Parameter, Signature
-from typing import TYPE_CHECKING, Any, AsyncIterator, Type
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
@@ -21,9 +21,11 @@ from . import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator
+
     from pytest_mock import MockerFixture
 
-Bakery = Type[_Bakery]
+Bakery = type[_Bakery]
 
 
 def fixture_factory(mocker_name: str) -> Any:

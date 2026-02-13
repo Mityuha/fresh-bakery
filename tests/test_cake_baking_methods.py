@@ -1,10 +1,12 @@
 """Test bakery methods."""
 
+from collections.abc import Generator
 from dataclasses import dataclass
-from typing import Any, Generator
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
+from typing_extensions import Self
 
 from bakery import Bakery, BakingMethod, Cake, hand_made
 
@@ -18,13 +20,13 @@ async def test_bakery_auto_call() -> None:
         def __init__(self) -> None:
             self.inside: bool = False
 
-        async def __aenter__(self) -> "House":
+        async def __aenter__(self) -> Self:
             return self.__enter__()
 
         async def __aexit__(self, *_args: object) -> None:
             return self.__exit__()
 
-        def __enter__(self) -> "House":
+        def __enter__(self) -> Self:
             assert not self.inside
             self.inside = True
             return self
