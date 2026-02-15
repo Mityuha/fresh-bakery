@@ -3,9 +3,10 @@
 For inspect module only.
 """
 
+from collections.abc import Callable
 from functools import lru_cache, partial
 from inspect import unwrap
-from typing import Any, Callable, cast
+from typing import Any, cast
 
 from bakery import Bakery, Cake
 
@@ -20,7 +21,7 @@ async def test_cake_partial_func_attribute() -> None:
     class MyBakery(Bakery):
         """Bakery."""
 
-        x2_multiplier: Callable = Cake(partial, cast(Callable, multiplier), y=2)
+        x2_multiplier: Callable = Cake(partial, cast("Callable", multiplier), y=2)
         x6_multiplier: Callable = Cake(partial, x2_multiplier, z=3)
 
     def unwrap_partial(value: Any) -> Any:

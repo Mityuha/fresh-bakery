@@ -31,7 +31,7 @@ async def test_cake_replacement_after_bake_is_prohibited() -> None:
     cake = Pastry(value)
 
     async with cake:
-        with pytest.raises(TypeError, match="Cannot replace cake (.*) that's already baked"):
+        with pytest.raises(TypeError, match=r"Cannot replace cake (.*) that's already baked"):
             cake.__cake_replace__(replace_with).__enter__()
         assert cake() == value
 
@@ -42,9 +42,10 @@ async def test_multiple_replacements_are_prohibited() -> None:
     cake = Pastry(value)
 
     with cake.__cake_replace__(replace_with):
-        with pytest.raises(
-            TypeError, match="Cannot replace cake (.*) that's already replaced"
-        ), cake.__cake_replace__(replace_with):
+        with (
+            pytest.raises(TypeError, match=r"Cannot replace cake (.*) that's already replaced"),
+            cake.__cake_replace__(replace_with),
+        ):
             ...
 
         async with cake:

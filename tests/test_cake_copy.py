@@ -56,7 +56,7 @@ async def test_copy_cake() -> None:
         assert cake_recipe_kwargs(cpu_cake) == cake_recipe_kwargs(cpu_new_cake)
 
         cpu: CPU = cpu_cake()
-        with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):
+        with pytest.raises(ValueError, match=r"Cake 'cpu' is not baked. Just bake it!"):
             # Cake copy is not baked yet
             _ = cpu_new_cake.core_num()
 
@@ -91,7 +91,7 @@ async def test_deepcopy_cake() -> None:
         assert cake_recipe_args(cpu_cake) == cake_recipe_args(cpu_new_cake)
 
         cpu: CPU = cpu_cake()
-        with pytest.raises(ValueError, match="Cake 'cpu' is not baked. Just bake it!"):
+        with pytest.raises(ValueError, match=r"Cake 'cpu' is not baked. Just bake it!"):
             # Cake copy is not baked yet
             _ = cpu_new_cake.core_num()
 

@@ -3,30 +3,23 @@ repos:
     hooks:
       - id: ruff
         name: ruff
-        stages: [commit]
+        stages: [pre-commit]
         language: python
         types_or: [python, pyi]
         entry: poetry run ruff check
         exclude: examples
       - id: ruff-format
         name: ruff-format
-        stages: [commit]
+        stages: [pre-commit]
         language: python
         types_or: [python, pyi]
         entry: poetry run ruff format
         exclude: examples
       - id: mypy
         name: mypy
-        stages: [commit]
+        stages: [pre-commit]
         language: system
         entry: poetry run mypy
         types: [python]
         require_serial: true
-        exclude: examples
-      - id: sort-all
-        name: sort-all
-        stages: [commit]
-        language: system
-        entry: poetry run sort-all
-        types: [python]
         exclude: examples

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Final
 
+from typing_extensions import Self
+
 
 @dataclass
 class CPU:
@@ -31,7 +33,7 @@ class HttpClient:
         await self.auth.get_token()
         return None
 
-    async def __aenter__(self) -> "HttpClient":
+    async def __aenter__(self) -> Self:
         assert not self.connected
         self.connected = True
         return self

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, AsyncIterator, ClassVar, Iterator
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import pytest
 from typing_extensions import Self
@@ -13,6 +13,7 @@ from bakery import Bakery, Cake
 from . import asynccontextmanager
 
 if TYPE_CHECKING:
+    from collections.abc import AsyncIterator, Iterator
     from types import TracebackType
 
 

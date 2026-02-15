@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, no_type_check
+from typing import TYPE_CHECKING, Any, no_type_check
 
 import pytest
 
@@ -18,6 +18,9 @@ from bakery import (
     is_baked,
     is_cake,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def search_for_all_anon_cakes(cakes: list) -> Iterator[Any]:
